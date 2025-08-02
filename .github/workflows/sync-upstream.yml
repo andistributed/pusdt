@@ -1,0 +1,43 @@
+name: 同步上游仓库
+
+on:
+  schedule:
+    # 每天凌晨3点运行
+    - cron: '0 3 * * *'
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: 同步上游仓库最新代码
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 配置Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+      - name: 添加上游仓库
+        run: |
+          # 替换为实际的上游仓库URL
+          git remote add upstream https://github.com/v03413/BEpusdt.git
+          git fetch upstream
+      
+      - name: 合并上游更新
+        run: |
+          # 获取当前分支
+          CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+          # 合并上游更改
+          git merge upstream/$CURRENT_BRANCH --no-edit
+      
+      - name: 推送更改
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
