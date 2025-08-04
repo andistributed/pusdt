@@ -125,6 +125,9 @@ func addStartWalletAddress() {
 			continue
 		}
 
+		if len(name) > 0 {
+			address += ` (` + name + `)`
+		}
 		fmt.Println("✅钱包地址添加成功：", tradeType, address)
 	}
 }
