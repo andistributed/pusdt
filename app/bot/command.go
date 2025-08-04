@@ -41,9 +41,16 @@ func cmdStartHandle(ctx context.Context, b *bot.Bot, u *models.Update) {
 	var btn [][]models.InlineKeyboardButton
 	if model.DB.Find(&was).Error == nil {
 		for _, wa := range was {
-			var text = fmt.Sprintf("[✅已启用] %s %s", help.MaskAddress2(wa.Address), wa.TradeType)
+			var text string
+			var walletAddr string
+			if len(wa.Name) > 0 {
+				walletAddr = wa.Name + `:`
+			}
+			walletAddr += help.MaskAddress2(wa.Address)
 			if wa.Status == model.StatusDisable {
-				text = fmt.Sprintf("[❌已禁用] %s %s", help.MaskAddress2(wa.Address), wa.TradeType)
+				text = fmt.Sprintf("[❌已禁用] %s %s", walletAddr, wa.TradeType)
+			} else {
+				text = fmt.Sprintf("[✅已启用] %s %s", walletAddr, wa.TradeType)
 			}
 
 			btn = append(btn, []models.InlineKeyboardButton{

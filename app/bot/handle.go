@@ -15,7 +15,11 @@ import (
 
 func defaultHandle(ctx context.Context, bot *bot.Bot, u *models.Update) {
 	if u.Message != nil && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.Text == replayAddressText {
-		addWalletAddress(u)
+		if id, ok := isRenameMode(u); ok {
+			renameAddress(u, id)
+		} else {
+			addWalletAddress(u)
+		}
 
 		return
 	}
@@ -48,9 +52,12 @@ func addWalletAddress(u *models.Update) {
 		address = strings.ToLower(address)
 	}
 
-	var tradeType, ok = cache.Get(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.Message.Chat.ID))
+	cacheKey := fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.Message.Chat.ID)
+	var tradeType, ok = cache.Get(cacheKey)
 	if !ok {
 		SendMessage(&bot.SendMessageParams{Text: "❌非法操作"})
+
+		return
 	}
 
 	var wa = model.WalletAddress{TradeType: cast.ToString(tradeType), Address: address, Status: model.StatusEnable, OtherNotify: model.OtherNotifyDisable, Name: name}
@@ -62,7 +69,7 @@ func addWalletAddress(u *models.Update) {
 	}
 
 	SendMessage(&bot.SendMessageParams{Text: "✅添加且成功启用"})
-
+	cache.Cache.Delete(cacheKey)
 	// 推送最新状态
 	cmdStartHandle(context.Background(), api, u)
 }
@@ -87,4 +94,37 @@ func queryTronAddressInfo(m *models.Message) {
 	}
 
 	SendMessage(&params)
+}
+
+func isRenameMode(u *models.Update) (int64, bool) {
+	cacheKey := fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.Message.Chat.ID)
+	v, ok := cache.Cache.Get(cacheKey)
+	if ok {
+		return cast.ToInt64(v), ok
+	}
+	return 0, false
+}
+
+func renameAddress(u *models.Update, id int64) {
+	var name = strings.TrimSpace(u.Message.Text)
+	var wa model.WalletAddress
+	err := model.DB.Where("id = ?", id).First(&wa).Error
+	if err != nil {
+		SendMessage(&bot.SendMessageParams{Text: "❌查询钱包出错，" + err.Error()})
+
+		return
+	}
+	// 修改地址状态
+	err = wa.SetName(name)
+	if err != nil {
+		SendMessage(&bot.SendMessageParams{Text: "❌修改名称失败，" + err.Error()})
+
+		return
+	}
+
+	cache.Cache.Delete(fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.Message.Chat.ID))
+
+	SendMessage(&bot.SendMessageParams{Text: "✅修改成功"})
+	// 推送最新状态
+	cmdStartHandle(context.Background(), api, u)
 }

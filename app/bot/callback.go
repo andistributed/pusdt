@@ -28,6 +28,7 @@ const cbWallet = "wallet"
 const cbAddress = "address_act"
 const cbAddressAdd = "address_add"
 const cbAddressType = "address_type"
+const cbAddressRename = "address_rename"
 const cbAddressEnable = "address_enable"
 const cbAddressDisable = "address_disable"
 const cbAddressDelete = "address_del"
@@ -72,6 +73,7 @@ func cbAddressAddAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	var k = fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.CallbackQuery.Message.Message.Chat.ID)
 
 	cache.Set(k, tradeType, -1)
+	cache.Cache.Delete(fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.CallbackQuery.Message.Message.Chat.ID))
 
 	SendMessage(&bot.SendMessageParams{
 		Text:   replayAddressText,
@@ -150,7 +152,6 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 		if wa.OtherNotify != 1 {
 			otherTextLabel = "🔴已禁用 非订单交易监控通知"
 		}
-
 		var text = fmt.Sprintf(">`%s`", wa.Address)
 		if help.IsValidTronAddress(wa.Address) {
 			text = getTronWalletInfo(wa.Address)
@@ -165,6 +166,10 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 			text = getSolanaWalletInfo(wa)
 		}
 
+		if len(wa.Name) > 0 {
+			text += ` (` + wa.Name + `)`
+		}
+
 		EditMessageText(ctx, b, &bot.EditMessageTextParams{
 			ChatID:    u.CallbackQuery.Message.Message.Chat.ID,
 			MessageID: u.CallbackQuery.Message.Message.ID,
@@ -173,6 +178,7 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 			ReplyMarkup: models.InlineKeyboardMarkup{
 				InlineKeyboard: [][]models.InlineKeyboardButton{
 					{
+						models.InlineKeyboardButton{Text: "✏️重命名", CallbackData: cbAddressRename + "|" + id + "|" + wa.Address},
 						models.InlineKeyboardButton{Text: "✅启用", CallbackData: cbAddressEnable + "|" + id},
 						models.InlineKeyboardButton{Text: "❌禁用", CallbackData: cbAddressDisable + "|" + id},
 						models.InlineKeyboardButton{Text: "⛔️删除", CallbackData: cbAddressDelete + "|" + id},
@@ -194,6 +200,25 @@ func cbAddressBackAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	})
 
 	cmdStartHandle(ctx, b, u)
+}
+
+func cbAddressReanmeAction(ctx context.Context, b *bot.Bot, u *models.Update) {
+	var id = getArg(ctx, 1)
+	var addr = getArg(ctx, 2)
+	var k = fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.CallbackQuery.Message.Message.Chat.ID)
+
+	cache.Set(k, id, -1)
+	cache.Cache.Delete(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.CallbackQuery.Message.Message.Chat.ID))
+
+	SendMessage(&bot.SendMessageParams{
+		Text:   fmt.Sprintf("🚚 请给钱包地址(%s)取一个新的名称", addr),
+		ChatID: u.CallbackQuery.Message.Message.Chat.ID,
+		ReplyMarkup: &models.ForceReply{
+			ForceReply:            true,
+			Selective:             true,
+			InputFieldPlaceholder: "",
+		},
+	})
 }
 
 func cbAddressEnableAction(ctx context.Context, b *bot.Bot, u *models.Update) {

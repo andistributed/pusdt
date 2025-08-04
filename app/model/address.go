@@ -127,19 +127,24 @@ func (wa *WalletAddress) TableName() string {
 	return "wallet_address"
 }
 
-func (wa *WalletAddress) SetStatus(status uint8) {
+func (wa *WalletAddress) SetStatus(status uint8) error {
 	wa.Status = status
-	DB.Save(wa)
+	return DB.Save(wa).Error
 }
 
-func (wa *WalletAddress) SetOtherNotify(notify uint8) {
+func (wa *WalletAddress) SetName(name string) error {
+	wa.Name = name
+	return DB.Save(wa).Error
+}
+
+func (wa *WalletAddress) SetOtherNotify(notify uint8) error {
 	wa.OtherNotify = notify
 
-	DB.Save(wa)
+	return DB.Save(wa).Error
 }
 
-func (wa *WalletAddress) Delete() {
-	DB.Delete(wa)
+func (wa *WalletAddress) Delete() error {
+	return DB.Delete(wa).Error
 }
 
 func (wa *WalletAddress) GetTokenContract() string {
