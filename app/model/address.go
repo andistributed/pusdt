@@ -85,13 +85,20 @@ type WalletAddress struct {
 func addStartWalletAddress() {
 	for _, itm := range conf.GetWalletAddress() {
 		var info = strings.Split(itm, ":")
-		if len(info) != 2 {
-
+		var name string
+		var address string
+		var tradeType string
+		switch len(info) {
+		case 2:
+			address = info[1]
+			tradeType = info[0]
+		case 3:
+			address = info[2]
+			tradeType = info[1]
+			name = info[0]
+		default:
 			continue
 		}
-
-		var address = info[1]
-		var tradeType = info[0]
 
 		if !help.IsValidTronAddress(address) && !help.IsValidEvmAddress(address) {
 			fmt.Println("❌钱包地址不合法：", address)
@@ -111,7 +118,7 @@ func addStartWalletAddress() {
 			continue
 		}
 
-		var err = DB.Create(&WalletAddress{TradeType: tradeType, Address: address, Status: StatusEnable}).Error
+		var err = DB.Create(&WalletAddress{TradeType: tradeType, Address: address, Status: StatusEnable, Name: name}).Error
 		if err != nil {
 			fmt.Println("❌钱包地址添加失败：", err)
 
