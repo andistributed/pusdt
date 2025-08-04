@@ -38,6 +38,7 @@ func Start() {
 		orderGrp.Use(signVerify)
 		orderGrp.POST("/create-transaction", createTransaction)
 		orderGrp.POST("/cancel-transaction", cancelTransaction)
+		orderGrp.POST("/query-transaction", queryTransaction)
 	}
 
 	// 易支付兼容

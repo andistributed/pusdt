@@ -68,6 +68,14 @@ func createTransaction(ctx *gin.Context) {
 			return
 		}
 	}
+
+	timestamp, _ := data["timestamp"].(float64)
+	if conf.IsExpired(int64(timestamp)) {
+		ctx.JSON(200, respFailJson("提交的参数已经过期"))
+
+		return
+	}
+
 	tradeType, ok := data["trade_type"].(string)
 	if !ok {
 		tradeType = model.OrderTradeTypeUsdtTrc20 // 默认 USDT TRC20
@@ -221,5 +229,39 @@ func checkStatus(ctx *gin.Context) {
 		"trade_hash": order.TradeHash,
 		"status":     order.Status,
 		"return_url": returnUrl,
+	})
+}
+
+func queryTransaction(ctx *gin.Context) {
+	data := ctx.GetStringMap("data")
+	tradeId, ok := data["trade_id"].(string)
+	if !ok {
+		ctx.JSON(200, respFailJson("参数 trade_id 不存在"))
+
+		return
+	}
+
+	timestamp, _ := data["timestamp"].(float64)
+	if conf.IsExpired(int64(timestamp)) {
+		ctx.JSON(200, respFailJson("提交的参数已经过期"))
+
+		return
+	}
+
+	order, ok := model.GetTradeOrder(tradeId)
+	if !ok {
+		ctx.JSON(200, respFailJson("订单不存在"))
+
+		return
+	}
+	// 返回响应数据
+	ctx.JSON(200, gin.H{
+		"trade_id":        order.TradeId,
+		"trade_hash":      order.TradeHash,
+		"status":          order.Status,
+		"currency":        "CNY",
+		"amount":          order.Money,
+		"actual_currency": "USDT",
+		"actual_amount":   help.Atof(order.Amount),
 	})
 }
