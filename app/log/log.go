@@ -1,10 +1,11 @@
 package log
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/v03413/bepusdt/app/conf"
 	"io"
 	"os"
+
+	"github.com/sirupsen/logrus"
+	"github.com/v03413/bepusdt/app/conf"
 )
 
 var logger *logrus.Logger
@@ -12,7 +13,8 @@ var logger *logrus.Logger
 func Init() error {
 	logger = logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
+		ForceColors:     false,
+		DisableColors:   true,
 		ForceQuote:      true,
 		TimestampFormat: "2006-01-02 15:04:05",
 		FullTimestamp:   true,

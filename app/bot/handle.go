@@ -98,7 +98,7 @@ func queryTronAddressInfo(m *models.Message) {
 
 func isRenameMode(u *models.Update) (int64, bool) {
 	cacheKey := fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.Message.Chat.ID)
-	v, ok := cache.Cache.Get(cacheKey)
+	v, ok := cache.Get(cacheKey)
 	if ok {
 		return cast.ToInt64(v), ok
 	}
@@ -122,9 +122,10 @@ func renameAddress(u *models.Update, id int64) {
 		return
 	}
 
+	SendMessage(&bot.SendMessageParams{Text: "✅修改成功"})
+
 	cache.Cache.Delete(fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.Message.Chat.ID))
 
-	SendMessage(&bot.SendMessageParams{Text: "✅修改成功"})
 	// 推送最新状态
 	cmdStartHandle(context.Background(), api, u)
 }
