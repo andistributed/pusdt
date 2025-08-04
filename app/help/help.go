@@ -4,8 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/btcsuite/btcd/btcutil/base58"
-	gonanoid "github.com/matoous/go-nanoid/v2"
 	"math"
 	"math/big"
 	"os"
@@ -14,6 +12,9 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/btcsuite/btcd/btcutil/base58"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 // IsExist 判断文件是否存在
@@ -59,12 +60,19 @@ func EpusdtSign(data map[string]interface{}, token string) string {
 
 		sign.WriteString(k)
 		sign.WriteString("=")
-		sign.WriteString(fmt.Sprintf("%v", v))
+		switch k {
+		case `timestamp`:
+			sign.WriteString(fmt.Sprintf("%0.f", v))
+		case `amount`:
+			sign.WriteString(fmt.Sprint(v))
+		default:
+			sign.WriteString(fmt.Sprint(v))
+		}
 		sign.WriteString("&")
 	}
 
 	signString := strings.TrimRight(sign.String(), "&")
-
+	//panic(signString)
 	return Md5String(signString + token)
 }
 
