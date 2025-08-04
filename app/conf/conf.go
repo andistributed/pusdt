@@ -44,5 +44,10 @@ type Conf struct {
 		MaxOpenConns int    `toml:"max_open_conns"`
 		MaxLifeTime  int    `toml:"max_life_time"`
 	} `toml:"mysql"`
+	Log struct {
+		MaxSize    int `toml:"max_size"`
+		MaxBackups int `toml:"max_backups"`
+		MaxAge     int `toml:"max_age"`
+	} `toml:"log"`
 	Debug bool `toml:"debug"`
 }
