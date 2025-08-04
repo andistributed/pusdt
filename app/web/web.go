@@ -1,13 +1,14 @@
 package web
 
 import (
+	"html/template"
+	"io/fs"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/log"
 	"github.com/v03413/bepusdt/static"
-	"html/template"
-	"io/fs"
-	"net/http"
 )
 
 func Start() {
