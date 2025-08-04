@@ -72,6 +72,7 @@ var tradeTypeTable = map[string]TokenType{
 
 type WalletAddress struct {
 	ID          int64     `gorm:"integer;primaryKey;not null;comment:id"`
+	Name        string    `gorm:"column:name;type:varchar(60);not null;default:'';comment:钱包名"`
 	Status      uint8     `gorm:"column:status;type:tinyint(1);not null;default:1;comment:地址状态"`
 	TradeType   string    `gorm:"column:trade_type;type:varchar(20);not null;index;comment:交易类型"`
 	Address     string    `gorm:"column:address;type:varchar(64);not null;index;comment:钱包地址"`

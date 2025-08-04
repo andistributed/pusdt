@@ -3,12 +3,14 @@ package bot
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"github.com/spf13/cast"
 	"github.com/v03413/bepusdt/app/help"
 	"github.com/v03413/bepusdt/app/model"
 	"github.com/v03413/go-cache"
-	"strings"
 )
 
 func defaultHandle(ctx context.Context, bot *bot.Bot, u *models.Update) {
@@ -28,7 +30,13 @@ func defaultHandle(ctx context.Context, bot *bot.Bot, u *models.Update) {
 }
 
 func addWalletAddress(u *models.Update) {
+	var name string
 	var address = strings.TrimSpace(u.Message.Text)
+	parts := strings.SplitN(address, `:`, 2)
+	if len(parts) == 2 {
+		name = strings.TrimSpace(parts[0])
+		address = strings.TrimSpace(parts[1])
+	}
 	if !help.IsValidTronAddress(address) && !help.IsValidEvmAddress(address) && !help.IsValidSolanaAddress(address) && !help.IsValidAptosAddress(address) {
 		SendMessage(&bot.SendMessageParams{Text: "钱包地址不合法"})
 
@@ -40,9 +48,12 @@ func addWalletAddress(u *models.Update) {
 		address = strings.ToLower(address)
 	}
 
-	var tradeType, _ = cache.Get(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.Message.Chat.ID))
+	var tradeType, ok = cache.Get(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.Message.Chat.ID))
+	if !ok {
+		SendMessage(&bot.SendMessageParams{Text: "❌非法操作"})
+	}
 
-	var wa = model.WalletAddress{TradeType: tradeType.(string), Address: address, Status: model.StatusEnable, OtherNotify: model.OtherNotifyDisable}
+	var wa = model.WalletAddress{TradeType: cast.ToString(tradeType), Address: address, Status: model.StatusEnable, OtherNotify: model.OtherNotifyDisable, Name: name}
 	var r = model.DB.Create(&wa)
 	if r.Error != nil {
 		SendMessage(&bot.SendMessageParams{Text: "❌地址添加失败，" + r.Error.Error()})
