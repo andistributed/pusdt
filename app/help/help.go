@@ -63,7 +63,7 @@ func EpusdtSign(data map[string]interface{}, token string) string {
 		sign.WriteString("=")
 		switch k {
 		case `timestamp`:
-			sign.WriteString(fmt.Sprintf("%d", v))
+			sign.WriteString(fmt.Sprintf("%0.f", v))
 		case `amount`:
 			sign.WriteString(fmt.Sprint(v))
 		default:

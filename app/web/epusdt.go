@@ -69,11 +69,13 @@ func createTransaction(ctx *gin.Context) {
 		}
 	}
 
-	timestamp, _ := data["timestamp"].(int64)
-	if conf.IsExpired(timestamp) {
-		ctx.JSON(200, respFailJson("提交的参数已经过期"))
+	if v, ok := data["timestamp"]; ok {
+		timestamp := cast.ToInt64(v)
+		if conf.IsExpired(timestamp) {
+			ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
-		return
+			return
+		}
 	}
 
 	tradeType, ok := data["trade_type"].(string)
@@ -241,11 +243,13 @@ func queryTransaction(ctx *gin.Context) {
 		return
 	}
 
-	timestamp, _ := data["timestamp"].(int64)
-	if conf.IsExpired(int64(timestamp)) {
-		ctx.JSON(200, respFailJson("提交的参数已经过期"))
+	if v, ok := data["timestamp"]; ok {
+		timestamp := cast.ToInt64(v)
+		if conf.IsExpired(timestamp) {
+			ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
-		return
+			return
+		}
 	}
 
 	order, ok := model.GetTradeOrder(tradeId)
