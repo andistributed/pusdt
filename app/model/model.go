@@ -38,6 +38,9 @@ func Init() error {
 
 			return fmt.Errorf("数据库初始化失败：%w", err)
 		}
+		if conf.GetConfig().Debug {
+			DB = DB.Debug()
+		}
 	}
 
 	if err = AutoMigrate(); err != nil {
@@ -77,7 +80,7 @@ func initMysql() error {
 	if err != nil {
 		return err
 	}
-	if cfg.Debug {
+	if conf.GetConfig().Debug {
 		DB = DB.Debug()
 	}
 	var sqlDB *sql.DB

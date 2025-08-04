@@ -40,9 +40,9 @@ type Conf struct {
 	MySQL struct {
 		DSN          string `toml:"dsn"`
 		TablePrefix  string `toml:"table_prefix"`
-		Debug        bool   `toml:"debug"`
 		MaxIdleConns int    `toml:"max_idle_conns"`
 		MaxOpenConns int    `toml:"max_open_conns"`
 		MaxLifeTime  int    `toml:"max_life_time"`
 	} `toml:"mysql"`
+	Debug bool `toml:"debug"`
 }
