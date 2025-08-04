@@ -69,8 +69,8 @@ func createTransaction(ctx *gin.Context) {
 		}
 	}
 
-	timestamp, _ := data["timestamp"].(float64)
-	if conf.IsExpired(int64(timestamp)) {
+	timestamp, _ := data["timestamp"].(int64)
+	if conf.IsExpired(timestamp) {
 		ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
 		return
@@ -241,7 +241,7 @@ func queryTransaction(ctx *gin.Context) {
 		return
 	}
 
-	timestamp, _ := data["timestamp"].(float64)
+	timestamp, _ := data["timestamp"].(int64)
 	if conf.IsExpired(int64(timestamp)) {
 		ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
