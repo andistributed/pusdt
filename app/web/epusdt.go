@@ -46,7 +46,7 @@ func signVerify(ctx *gin.Context) {
 	gens := help.EpusdtSign(m, conf.GetAuthToken())
 	if gens != sign {
 		log.Warnf("签名错误 %#v", m)
-		log.Warnf("%s(token=%q) != %s", gens, conf.GetAuthToken(), sign)
+		//log.Warnf("%s(token=%q) != %s", gens, conf.GetAuthToken(), sign)
 		ctx.JSON(400, gin.H{"error": "签名错误"})
 		ctx.Abort()
 
