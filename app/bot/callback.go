@@ -167,7 +167,7 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 		}
 
 		if len(wa.Name) > 0 {
-			text += ` (` + wa.Name + `)`
+			text += ` \(` + wa.Name + `\)`
 		}
 
 		EditMessageText(ctx, b, &bot.EditMessageTextParams{
@@ -211,7 +211,7 @@ func cbAddressReanmeAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	cache.Cache.Delete(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.CallbackQuery.Message.Message.Chat.ID))
 
 	SendMessage(&bot.SendMessageParams{
-		Text:   fmt.Sprintf("🚚 请给钱包地址(%s)取一个新的名称", addr),
+		Text:   fmt.Sprintf("🚚 请给钱包地址\\(%s\\)取一个新的名称", addr),
 		ChatID: u.CallbackQuery.Message.Message.Chat.ID,
 		ReplyMarkup: &models.ForceReply{
 			ForceReply:            true,
