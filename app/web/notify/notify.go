@@ -3,6 +3,11 @@ package notify
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/v03413/bepusdt/app"
 	"github.com/v03413/bepusdt/app/bot"
 	"github.com/v03413/bepusdt/app/conf"
@@ -11,10 +16,6 @@ import (
 	"github.com/v03413/bepusdt/app/model"
 	e "github.com/v03413/bepusdt/app/web/epay"
 	"github.com/v03413/go-cache"
-	"io"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type EpNotify struct {
@@ -44,7 +45,7 @@ func epay(order model.TradeOrders) {
 
 	postReq, err2 := http.NewRequest("GET", notifyUrl, nil)
 	if err2 != nil {
-		log.Error("Notify NewRequest Error：", err2)
+		log.Error("Notify NewRequest Error: ", err2)
 
 		return
 	}
@@ -52,14 +53,14 @@ func epay(order model.TradeOrders) {
 	postReq.Header.Set("Powered-By", "https://github.com/v03413/bepusdt")
 	resp, err := client.Do(postReq)
 	if err != nil {
-		log.Error("Notify Handle Error：", err)
+		log.Error("Notify Handle Error: ", err)
 
 		return
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		markNotifyFail(order, fmt.Sprintf("resp.StatusCode != 200"))
+		markNotifyFail(order, "resp.StatusCode != 200")
 
 		return
 	}
@@ -99,13 +100,13 @@ func epusdt(order model.TradeOrders) {
 	}
 	var jsonBody, err = json.Marshal(body)
 	if err != nil {
-		log.Error("Notify Json Marshal Error：", err)
+		log.Error("Notify Json Marshal Error: ", err)
 
 		return
 	}
 
 	if err = json.Unmarshal(jsonBody, &data); err != nil {
-		log.Error("Notify JSON Unmarshal Error：", err)
+		log.Error("Notify JSON Unmarshal Error: ", err)
 
 		return
 	}
@@ -135,7 +136,7 @@ func epusdt(order model.TradeOrders) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		markNotifyFail(order, fmt.Sprintf("resp.StatusCode != 200"))
+		markNotifyFail(order, "resp.StatusCode != 200")
 
 		return
 	}
