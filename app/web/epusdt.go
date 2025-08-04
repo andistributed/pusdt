@@ -126,7 +126,7 @@ func createTransaction(ctx *gin.Context) {
 		"order_id":        order.OrderId,
 		"status":          order.Status,
 		"amount":          order.Money,
-		"actual_amount":   order.Amount,
+		"actual_amount":   help.Atof(order.Amount),
 		"token":           order.Address,
 		"expiration_time": uint64(time.Until(order.ExpiredAt).Seconds()),
 		"payment_url":     fmt.Sprintf("%s/pay/checkout-counter/%s", conf.GetAppUri(host), order.TradeId),

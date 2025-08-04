@@ -29,6 +29,19 @@ type EpNotify struct {
 	Status             int     `json:"status"`               //  1：等待支付，2：支付成功，3：订单超时
 }
 
+func (e *EpNotify) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"trade_id":             e.TradeId,
+		"order_id":             e.OrderId,
+		"amount":               e.Amount,
+		"actual_amount":        e.ActualAmount,
+		"token":                e.Token,
+		"block_transaction_id": e.BlockTransactionId,
+		"signature":            e.Signature,
+		"status":               e.Status,
+	}
+}
+
 func Handle(order model.TradeOrders) {
 	if order.ApiType == model.OrderApiTypeEpay {
 		epay(order)
@@ -88,7 +101,6 @@ func epay(order model.TradeOrders) {
 }
 
 func epusdt(order model.TradeOrders) {
-	var data = make(map[string]interface{})
 	var body = EpNotify{
 		TradeId:            order.TradeId,
 		OrderId:            order.OrderId,
@@ -98,24 +110,12 @@ func epusdt(order model.TradeOrders) {
 		BlockTransactionId: order.TradeHash,
 		Status:             order.Status,
 	}
-	var jsonBody, err = json.Marshal(body)
-	if err != nil {
-		log.Error("Notify Json Marshal Error: ", err)
-
-		return
-	}
-
-	if err = json.Unmarshal(jsonBody, &data); err != nil {
-		log.Error("Notify JSON Unmarshal Error: ", err)
-
-		return
-	}
-
+	data := body.ToMap()
 	// 签名
 	body.Signature = help.EpusdtSign(data, conf.GetAuthToken())
 
 	// 再次序列化
-	jsonBody, err = json.Marshal(body)
+	jsonBody, err := json.Marshal(body)
 	var client = http.Client{Timeout: time.Second * 5}
 	var postReq, err2 = http.NewRequest("POST", order.NotifyUrl, strings.NewReader(string(jsonBody)))
 	if err2 != nil {
@@ -186,7 +186,6 @@ func Bepusdt(order model.TradeOrders) {
 
 		cache.Set(key, true, time.Minute)
 
-		var data = make(map[string]interface{})
 		var body = EpNotify{
 			TradeId:            o.TradeId,
 			OrderId:            o.OrderId,
@@ -196,24 +195,12 @@ func Bepusdt(order model.TradeOrders) {
 			BlockTransactionId: o.TradeHash,
 			Status:             o.Status,
 		}
-		var jsonBody, err = json.Marshal(body)
-		if err != nil {
-			db.Rollback()
-
-			return err
-		}
-
-		if err = json.Unmarshal(jsonBody, &data); err != nil {
-			db.Rollback()
-
-			return err
-		}
-
+		data := body.ToMap()
 		// 签名
 		body.Signature = help.EpusdtSign(data, conf.GetAuthToken())
 
 		// 再次序列化
-		jsonBody, err = json.Marshal(body)
+		jsonBody, err := json.Marshal(body)
 		var client = http.Client{Timeout: time.Second * 5}
 		var req, err2 = http.NewRequest("POST", o.NotifyUrl, strings.NewReader(string(jsonBody)))
 		if err2 != nil {
