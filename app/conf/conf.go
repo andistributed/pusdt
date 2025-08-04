@@ -35,6 +35,7 @@ type Conf struct {
 		Token   string `toml:"token"`
 		AdminID int64  `toml:"admin_id"`
 		GroupID string `toml:"group_id"`
+		Proxy   string `toml:"proxy"`
 	} `toml:"bot"`
 	MySQL struct {
 		DSN          string `toml:"dsn"`

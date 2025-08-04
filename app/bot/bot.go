@@ -22,6 +22,10 @@ func Init() error {
 		bot.WithDefaultHandler(defaultHandle),
 	}
 
+	if conf.GetConfig().Bot.Proxy != "" {
+		opts = append(opts, bot.WithServerURL(conf.GetConfig().Bot.Proxy))
+	}
+
 	api, err = bot.New(conf.BotToken(), opts...)
 
 	return err
