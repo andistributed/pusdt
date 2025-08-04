@@ -36,7 +36,7 @@ func signVerify(ctx *gin.Context) {
 
 	sign, ok := m["signature"]
 	if !ok {
-		log.Warn("signature not found", m)
+		log.Warnf("signature not found %#v", m)
 		ctx.JSON(400, gin.H{"error": "signature not found"})
 		ctx.Abort()
 
@@ -44,7 +44,7 @@ func signVerify(ctx *gin.Context) {
 	}
 
 	if help.EpusdtSign(m, conf.GetAuthToken()) != sign {
-		log.Warn("签名错误", m)
+		log.Warnf("签名错误 %#v", m)
 		ctx.JSON(400, gin.H{"error": "签名错误"})
 		ctx.Abort()
 
