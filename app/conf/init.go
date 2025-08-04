@@ -245,9 +245,6 @@ func GetConfig() Conf {
 }
 
 func GetDebug() bool {
-	if cfg.Debug {
-		return cfg.Debug
-	}
 	if v := os.Getenv(`BEPUSDT_DEBUG`); len(v) > 0 {
 		cfg.Debug, _ = strconv.ParseBool(v)
 	}
