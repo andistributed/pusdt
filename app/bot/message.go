@@ -2,14 +2,15 @@ package bot
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/v03413/bepusdt/app"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/help"
 	"github.com/v03413/bepusdt/app/model"
-	"strings"
-	"time"
 )
 
 func SendTradeSuccMsg(order model.TradeOrders) {
@@ -71,7 +72,7 @@ func SendNotifyFailed(o model.TradeOrders, reason string) {
 	tradeType := string(tokenType)
 
 	var text = fmt.Sprintf(`
-\#回调失败 \#订单交易 \#` + tradeType + `
+\#回调失败 \#订单交易 \#`+tradeType+`
 \-\-\-
 `+"```"+`
 🚦商户订单：%v
@@ -113,7 +114,6 @@ func Welcome() string {
 
 📌当前版本：` + app.Version + `
 📝发送命令 /start 可以开始使用
-🎉开源地址 https://github.com/v03413/bepusdt
 ---
 `
 }
