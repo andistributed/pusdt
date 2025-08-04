@@ -21,8 +21,8 @@ const (
 	defaultArbitrumRpcEndpoint = "https://arb1.arbitrum.io/rpc"            // 默认Arbitrum One RPC节点
 	defaultEthereumRpcEndpoint = "https://ethereum.publicnode.com/"        // 默认Ethereum RPC节点
 	defaultAptosRpcEndpoint    = "https://aptos-rest.publicnode.com/"      // 默认Aptos RPC节点
-	defaultOutputLog           = "/var/log/bepusdt.log"                    // 默认日志输出文件
-	defaultSqlitePath          = "/var/lib/bepusdt/sqlite.db"              // 默认数据库文件
+	defaultOutputLog           = "bepusdt.log"                             // 默认日志输出文件
+	defaultSqlitePath          = "bepusdt.db"                              // 默认数据库文件
 )
 
 const (

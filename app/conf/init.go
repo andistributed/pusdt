@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -146,7 +147,14 @@ func GetSqlitePath() string {
 		return cfg.SqlitePath
 	}
 
-	return defaultSqlitePath
+	return filepath.Join(executeDir(), defaultSqlitePath)
+}
+
+func executeDir() string {
+	if strings.HasPrefix(os.Args[0], os.TempDir()) { // go run
+		return `.`
+	}
+	return filepath.Dir(os.Args[0])
 }
 
 func GetOutputLog() string {
@@ -155,7 +163,7 @@ func GetOutputLog() string {
 		return cfg.OutputLog
 	}
 
-	return defaultOutputLog
+	return filepath.Join(executeDir(), defaultOutputLog)
 }
 
 func GetListen() string {
