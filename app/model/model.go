@@ -33,7 +33,7 @@ func Init() error {
 			return fmt.Errorf("创建数据库目录失败：%w", err)
 		}
 
-		DB, err = gorm.Open(sqlite.Open(path), &gorm.Config{})
+		DB, err = gorm.Open(sqlite.Open(path), gormConfig())
 		if err != nil {
 
 			return fmt.Errorf("数据库初始化失败：%w", err)
