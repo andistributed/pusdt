@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -208,4 +209,9 @@ func Capitalize(s string) string {
 		runes[i] = unicode.ToLower(runes[i])
 	}
 	return string(runes)
+}
+
+func Atof(s string) float64 {
+	v, _ := strconv.ParseFloat(s, 64)
+	return v
 }

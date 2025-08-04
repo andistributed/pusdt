@@ -22,7 +22,7 @@ type EpNotify struct {
 	TradeId            string  `json:"trade_id"`             //  本地订单号
 	OrderId            string  `json:"order_id"`             //  客户交易id
 	Amount             float64 `json:"amount"`               //  订单金额 CNY
-	ActualAmount       string  `json:"actual_amount"`        //  USDT 交易数额
+	ActualAmount       float64 `json:"actual_amount"`        //  USDT 交易数额
 	Token              string  `json:"token"`                //  收款钱包地址
 	BlockTransactionId string  `json:"block_transaction_id"` // 区块id
 	Signature          string  `json:"signature"`            // 签名
@@ -93,7 +93,7 @@ func epusdt(order model.TradeOrders) {
 		TradeId:            order.TradeId,
 		OrderId:            order.OrderId,
 		Amount:             order.Money,
-		ActualAmount:       order.Amount,
+		ActualAmount:       help.Atof(order.Amount),
 		Token:              order.Address,
 		BlockTransactionId: order.TradeHash,
 		Status:             order.Status,
@@ -191,7 +191,7 @@ func Bepusdt(order model.TradeOrders) {
 			TradeId:            o.TradeId,
 			OrderId:            o.OrderId,
 			Amount:             o.Money,
-			ActualAmount:       o.Amount,
+			ActualAmount:       help.Atof(o.Amount),
 			Token:              o.Address,
 			BlockTransactionId: o.TradeHash,
 			Status:             o.Status,
