@@ -69,9 +69,11 @@ func createTransaction(ctx *gin.Context) {
 		}
 	}
 
+	//log.Infof(`post: %#[1]v %[2]v(%[2]T)`, data, data["timestamp"])
 	if v, ok := data["timestamp"]; ok {
-		timestamp := cast.ToInt64(v)
+		timestamp := cast.ToInt64(fmt.Sprintf(`%0.f`, v))
 		if conf.IsExpired(timestamp) {
+			log.Warnf(`提交的参数已经过期: %[1]v(%[2]v)`, timestamp, time.Unix(timestamp, 0))
 			ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
 			return
@@ -244,8 +246,9 @@ func queryTransaction(ctx *gin.Context) {
 	}
 
 	if v, ok := data["timestamp"]; ok {
-		timestamp := cast.ToInt64(v)
+		timestamp := cast.ToInt64(fmt.Sprintf(`%0.f`, v))
 		if conf.IsExpired(timestamp) {
+			log.Warnf(`提交的参数已经过期: %[1]v(%[2]v)`, timestamp, time.Unix(timestamp, 0))
 			ctx.JSON(200, respFailJson("提交的参数已经过期"))
 
 			return

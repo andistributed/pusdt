@@ -115,8 +115,12 @@ func GetExpireTime() time.Duration {
 	return time.Duration(cfg.Pay.ExpireTime)
 }
 
+func GetExpireSeconds() time.Duration {
+	return GetExpireTime() * time.Second
+}
+
 func IsExpired(ts int64) bool {
-	return time.Now().After(time.Unix(ts, 0).Add(GetExpireTime()))
+	return time.Now().After(time.Unix(ts, 0).Add(GetExpireSeconds()))
 }
 
 func GetAuthToken() string {
