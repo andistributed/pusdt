@@ -38,7 +38,7 @@ func Init() error {
 
 			return fmt.Errorf("数据库初始化失败：%w", err)
 		}
-		if conf.GetConfig().Debug {
+		if conf.GetDebug() {
 			DB = DB.Debug()
 		}
 	}
@@ -80,7 +80,7 @@ func initMysql() error {
 	if err != nil {
 		return err
 	}
-	if conf.GetConfig().Debug {
+	if conf.GetDebug() {
 		DB = DB.Debug()
 	}
 	var sqlDB *sql.DB

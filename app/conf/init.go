@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -241,4 +242,11 @@ func GetWebhookUrl() string {
 
 func GetConfig() Conf {
 	return cfg
+}
+
+func GetDebug() bool {
+	if v := os.Getenv(`BEPUSDT_DEBUG`); len(v) > 0 {
+		cfg.Debug, _ = strconv.ParseBool(v)
+	}
+	return cfg.Debug
 }
