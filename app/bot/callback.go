@@ -152,18 +152,19 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 		if wa.OtherNotify != 1 {
 			otherTextLabel = "🔴已禁用 非订单交易监控通知"
 		}
-		var text = fmt.Sprintf(">`%s`", wa.Address)
+		var text string
 		if help.IsValidTronAddress(wa.Address) {
 			text = getTronWalletInfo(wa.Address)
-		}
-		if help.IsValidEvmAddress(wa.Address) {
+		} else if help.IsValidEvmAddress(wa.Address) {
 			text = getEvmWalletInfo(wa)
-		}
-		if help.IsValidAptosAddress(wa.Address) {
+		} else if help.IsValidAptosAddress(wa.Address) {
 			text = getAptosWalletInfo(wa)
-		}
-		if help.IsValidSolanaAddress(wa.Address) {
+		} else if help.IsValidSolanaAddress(wa.Address) {
 			text = getSolanaWalletInfo(wa)
+		}
+
+		if len(text) == 0 {
+			text = fmt.Sprintf(">`%s`", wa.Address)
 		}
 
 		if len(wa.Name) > 0 {
@@ -178,7 +179,7 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 			ReplyMarkup: models.InlineKeyboardMarkup{
 				InlineKeyboard: [][]models.InlineKeyboardButton{
 					{
-						models.InlineKeyboardButton{Text: "✏️重命名", CallbackData: cbAddressRename + "|" + id + "|" + wa.Address},
+						models.InlineKeyboardButton{Text: "✏️改名", CallbackData: cbAddressRename + "|" + id + "|" + wa.Address},
 						models.InlineKeyboardButton{Text: "✅启用", CallbackData: cbAddressEnable + "|" + id},
 						models.InlineKeyboardButton{Text: "❌禁用", CallbackData: cbAddressDisable + "|" + id},
 						models.InlineKeyboardButton{Text: "⛔️删除", CallbackData: cbAddressDelete + "|" + id},
@@ -211,7 +212,7 @@ func cbAddressReanmeAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	cache.Cache.Delete(fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.CallbackQuery.Message.Message.Chat.ID))
 
 	SendMessage(&bot.SendMessageParams{
-		Text:   fmt.Sprintf("🚚 请给钱包地址\\(%s\\)取一个新的名称", addr),
+		Text:   fmt.Sprintf("🚚 请给钱包地址 %s 取一个新的名称", addr),
 		ChatID: u.CallbackQuery.Message.Message.Chat.ID,
 		ReplyMarkup: &models.ForceReply{
 			ForceReply:            true,
