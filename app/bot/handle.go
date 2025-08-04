@@ -14,11 +14,13 @@ import (
 )
 
 func defaultHandle(ctx context.Context, bot *bot.Bot, u *models.Update) {
-	if u.Message != nil && u.Message.ReplyToMessage != nil && u.Message.ReplyToMessage.Text == replayAddressText {
-		if id, ok := isRenameMode(u); ok {
-			renameAddress(u, id)
-		} else {
+	if u.Message != nil && u.Message.ReplyToMessage != nil {
+		if u.Message.ReplyToMessage.Text == replayAddressText {
 			addWalletAddress(u)
+		} else if strings.HasSuffix(u.Message.ReplyToMessage.Text, `取一个新的名称`) {
+			if id, ok := isRenameMode(u); ok {
+				renameAddress(u, id)
+			}
 		}
 
 		return
