@@ -3,6 +3,9 @@ package bot
 import (
 	"context"
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/spf13/cast"
@@ -10,8 +13,6 @@ import (
 	"github.com/v03413/bepusdt/app/help"
 	"github.com/v03413/bepusdt/app/model"
 	"github.com/v03413/bepusdt/app/task/rate"
-	"math"
-	"time"
 )
 
 const cmdGetId = "id"
@@ -19,7 +20,7 @@ const cmdStart = "start"
 const cmdState = "state"
 const cmdOrder = "order"
 
-const replayAddressText = "🚚 请发送需要添加的钱包地址"
+const replayAddressText = "🚚 请发送需要添加的钱包地址(可以用“钱包名称:钱包地址”这种格式来指定名称)"
 const orderListText = "*现有订单列表，点击可查看详细信息，不同颜色对应着不同支付状态！*\n>🟢收款成功 🔴交易过期 🟡等待支付 ⚪️订单取消\n>🌟按钮内容 订单创建时间 订单号末八位 交易金额"
 const orderPageSize = 8
 
