@@ -4,6 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"math/big"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/shopspring/decimal"
@@ -15,12 +22,6 @@ import (
 	"github.com/v03413/bepusdt/app/model"
 	"github.com/v03413/go-cache"
 	"gorm.io/gorm"
-	"io"
-	"math/big"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 const cbWallet = "wallet"
@@ -38,8 +39,16 @@ const cbMarkNotifySucc = "mark_notify_succ"
 const cbOrderNotifyRetry = "order_notify_retry"
 const cbMarkOrderSucc = "mark_order_succ"
 
+func getArg(ctx context.Context, i int) string {
+	args, ok := ctx.Value("args").([]string)
+	if !ok || len(args) <= i {
+		return ``
+	}
+	return args[i]
+}
+
 func cbWalletAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var address = ctx.Value("args").([]string)[1]
+	var address = getArg(ctx, 1)
 
 	var text = bot.EscapeMarkdownUnescaped("暂不支持...")
 	if help.IsValidTronAddress(address) {
@@ -59,7 +68,7 @@ func cbWalletAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbAddressAddAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var tradeType = ctx.Value("args").([]string)[1]
+	var tradeType = getArg(ctx, 1)
 	var k = fmt.Sprintf("%s_%d_trade_type", cbAddressAdd, u.CallbackQuery.Message.Message.Chat.ID)
 
 	cache.Set(k, tradeType, -1)
@@ -115,7 +124,7 @@ func cbAddressTypeAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbAddressDelAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var id = ctx.Value("args").([]string)[1]
+	var id = getArg(ctx, 1)
 	var wa model.WalletAddress
 	if model.DB.Where("id = ?", id).First(&wa).Error == nil {
 		// 删除钱包地址
@@ -133,7 +142,7 @@ func cbAddressDelAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var id = ctx.Value("args").([]string)[1]
+	var id = getArg(ctx, 1)
 
 	var wa model.WalletAddress
 	if model.DB.Where("id = ?", id).First(&wa).Error == nil {
@@ -181,14 +190,14 @@ func cbAddressAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 func cbAddressBackAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	DeleteMessage(ctx, b, &bot.DeleteMessageParams{
 		ChatID:    u.CallbackQuery.Message.Message.Chat.ID,
-		MessageID: cast.ToInt(ctx.Value("args").([]string)[1]),
+		MessageID: cast.ToInt(getArg(ctx, 1)),
 	})
 
 	cmdStartHandle(ctx, b, u)
 }
 
 func cbAddressEnableAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var id = ctx.Value("args").([]string)[1]
+	var id = getArg(ctx, 1)
 	var wa model.WalletAddress
 	if model.DB.Where("id = ?", id).First(&wa).Error == nil {
 		// 修改地址状态
@@ -206,7 +215,7 @@ func cbAddressEnableAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbAddressDisableAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var id = ctx.Value("args").([]string)[1]
+	var id = getArg(ctx, 1)
 	var wa model.WalletAddress
 	if model.DB.Where("id = ?", id).First(&wa).Error == nil {
 		// 修改地址状态
@@ -224,7 +233,7 @@ func cbAddressDisableAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbAddressOtherNotifyAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var id = ctx.Value("args").([]string)[1]
+	var id = getArg(ctx, 1)
 	var wa model.WalletAddress
 	if model.DB.Where("id = ?", id).First(&wa).Error == nil {
 		if wa.OtherNotify == 1 {
@@ -343,7 +352,7 @@ func cbOrderDetailAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbOrderListAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	page := cast.ToInt(ctx.Value("args").([]string)[1])
+	page := cast.ToInt(getArg(ctx, 1))
 	buttons := buildOrderListWithNavigation(page)
 
 	EditMessageText(ctx, b, &bot.EditMessageTextParams{
@@ -356,7 +365,7 @@ func cbOrderListAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func cbMarkNotifySuccAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var tradeId = ctx.Value("args").([]string)[1]
+	var tradeId = getArg(ctx, 1)
 
 	model.DB.Model(&model.TradeOrders{}).Where("trade_id = ?", tradeId).Update("notify_state", model.OrderNotifyStateSucc)
 
@@ -367,7 +376,7 @@ func cbMarkNotifySuccAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 }
 
 func dbOrderNotifyRetryAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var tradeId = ctx.Value("args").([]string)[1]
+	var tradeId = getArg(ctx, 1)
 
 	model.DB.Model(&model.TradeOrders{}).Where("trade_id = ?", tradeId).UpdateColumn("notify_num", gorm.Expr("notify_num - ?", 1))
 
@@ -378,7 +387,7 @@ func dbOrderNotifyRetryAction(ctx context.Context, b *bot.Bot, u *models.Update)
 }
 
 func dbMarkOrderSuccAction(ctx context.Context, b *bot.Bot, u *models.Update) {
-	var tradeId = ctx.Value("args").([]string)[1]
+	var tradeId = getArg(ctx, 1)
 
 	model.DB.Model(&model.TradeOrders{}).Where("trade_id = ?", tradeId).UpdateColumn("status", model.OrderStatusSuccess)
 

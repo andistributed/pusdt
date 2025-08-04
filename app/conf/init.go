@@ -4,13 +4,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/pelletier/go-toml/v2"
-	"github.com/shopspring/decimal"
-	"github.com/spf13/cast"
 	"math"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/pelletier/go-toml/v2"
+	"github.com/shopspring/decimal"
+	"github.com/spf13/cast"
 )
 
 const (
@@ -110,6 +111,10 @@ func GetExpireTime() time.Duration {
 	}
 
 	return time.Duration(cfg.Pay.ExpireTime)
+}
+
+func IsExpired(ts int64) bool {
+	return time.Now().After(time.Unix(ts, 0).Add(GetExpireTime()))
 }
 
 func GetAuthToken() string {
@@ -224,4 +229,8 @@ func GetPaymentAmountMax() decimal.Decimal {
 func GetWebhookUrl() string {
 
 	return cfg.WebhookUrl
+}
+
+func GetConfig() Conf {
+	return cfg
 }

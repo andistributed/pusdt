@@ -36,4 +36,12 @@ type Conf struct {
 		AdminID int64  `toml:"admin_id"`
 		GroupID string `toml:"group_id"`
 	} `toml:"bot"`
+	MySQL struct {
+		DSN          string `toml:"dsn"`
+		TablePrefix  string `toml:"table_prefix"`
+		Debug        bool   `toml:"debug"`
+		MaxIdleConns int    `toml:"max_idle_conns"`
+		MaxOpenConns int    `toml:"max_open_conns"`
+		MaxLifeTime  int    `toml:"max_life_time"`
+	} `toml:"mysql"`
 }

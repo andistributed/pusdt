@@ -2,9 +2,9 @@ package web
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
-	"strings"
 
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/help"
@@ -26,8 +26,9 @@ type orderParams struct {
 	Rate        string  `json:"rate"`         // 强制指定汇率
 }
 
+var lock sync.Mutex
+
 func buildOrder(p orderParams) (model.TradeOrders, error) {
-	var lock sync.Mutex
 	var order model.TradeOrders
 
 	model.DB.Where("order_id = ?", p.OrderId).Find(&order)
@@ -42,7 +43,7 @@ func buildOrder(p orderParams) (model.TradeOrders, error) {
 	// 获取代币类型
 	tokenType, err := model.GetTokenType(p.TradeType)
 	if err != nil {
-		return order, fmt.Errorf(fmt.Sprintf("类型(%s)不支持：%v", p.TradeType, err))
+		return order, fmt.Errorf("类型(%s)不支持：%v", p.TradeType, err)
 	}
 
 	// 计算汇率
@@ -76,7 +77,7 @@ func buildOrder(p orderParams) (model.TradeOrders, error) {
 	// 获取钱包地址
 	wallet := model.GetAvailableAddress(p.PayAddress, p.TradeType)
 	if len(wallet) == 0 {
-		return order, fmt.Errorf(fmt.Sprintf("类型(%s)没检测到可用收款地址", p.TradeType))
+		return order, fmt.Errorf("类型(%s)没检测到可用收款地址", p.TradeType)
 	}
 
 	// 计算交易金额

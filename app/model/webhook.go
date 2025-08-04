@@ -3,10 +3,11 @@ package model
 import (
 	"context"
 	"encoding/json"
-	"github.com/smallnest/chanx"
-	"github.com/v03413/bepusdt/app/conf"
 	"math"
 	"time"
+
+	"github.com/smallnest/chanx"
+	"github.com/v03413/bepusdt/app/conf"
 )
 
 const (
@@ -37,7 +38,7 @@ type Webhook struct {
 
 func (Webhook) TableName() string {
 
-	return "bep_webhook"
+	return "webhook"
 }
 
 func (w Webhook) PostData() string {

@@ -2,10 +2,11 @@ package model
 
 import (
 	"fmt"
-	"github.com/v03413/bepusdt/app/conf"
-	"github.com/v03413/bepusdt/app/help"
 	"strings"
 	"time"
+
+	"github.com/v03413/bepusdt/app/conf"
+	"github.com/v03413/bepusdt/app/help"
 )
 
 const (
@@ -66,7 +67,7 @@ var tradeTypeTable = map[string]TokenType{
 	OrderTradeTypeUsdcAptos:    TokenTypeUSDC,
 
 	// TRX
-	OrderTradeTypeTronTrx:     TokenTypeTRX,
+	OrderTradeTypeTronTrx: TokenTypeTRX,
 }
 
 type WalletAddress struct {

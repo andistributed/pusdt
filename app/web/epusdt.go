@@ -66,13 +66,12 @@ func createTransaction(ctx *gin.Context) {
 			return
 		}
 	}
-
-	tradeType, ok := data["trade_type"]
+	tradeType, ok := data["trade_type"].(string)
 	if !ok {
 		tradeType = model.OrderTradeTypeUsdtTrc20 // 默认 USDT TRC20
 	}
 
-	if !help.InStrings(tradeType.(string), model.SupportTradeTypes) {
+	if !help.InStrings(tradeType, model.SupportTradeTypes) {
 		ctx.JSON(200, respFailJson(fmt.Sprintf("交易类型(%s)不支持", tradeType)))
 
 		return
@@ -81,8 +80,7 @@ func createTransaction(ctx *gin.Context) {
 	if v, ok := data["timeout"]; ok {
 		timeout = cast.ToUint64(v)
 	}
-	if v, ok := data["address"]; ok && cast.ToString(v) != "" {
-		address = cast.ToString(v)
+	if address, ok := data["address"].(string); ok && address != "" {
 		if !help.IsValidTronAddress(address) &&
 			!help.IsValidEvmAddress(address) &&
 			!help.IsValidSolanaAddress(address) &&
@@ -105,7 +103,7 @@ func createTransaction(ctx *gin.Context) {
 		ApiType:     model.OrderApiTypeEpusdt,
 		PayAddress:  address,
 		OrderId:     orderId,
-		TradeType:   tradeType.(string),
+		TradeType:   tradeType,
 		RedirectUrl: cast.ToString(data["redirect_url"]),
 		NotifyUrl:   cast.ToString(data["notify_url"]),
 		Name:        orderId,
@@ -128,7 +126,7 @@ func createTransaction(ctx *gin.Context) {
 		"amount":          order.Money,
 		"actual_amount":   order.Amount,
 		"token":           order.Address,
-		"expiration_time": uint64(order.ExpiredAt.Sub(time.Now()).Seconds()),
+		"expiration_time": uint64(time.Until(order.ExpiredAt).Seconds()),
 		"payment_url":     fmt.Sprintf("%s/pay/checkout-counter/%s", conf.GetAppUri(host), order.TradeId),
 	}))
 	log.Info(fmt.Sprintf("订单创建成功，商户订单号：%s", orderId))
@@ -188,7 +186,7 @@ func checkoutCounter(ctx *gin.Context) {
 		"http_host":  uri.Host,
 		"amount":     order.Amount,
 		"address":    order.Address,
-		"expire":     int64(order.ExpiredAt.Sub(time.Now()).Seconds()),
+		"expire":     int64(time.Until(order.ExpiredAt).Seconds()),
 		"return_url": order.ReturnUrl,
 		"usdt_rate":  order.TradeRate,
 		"trade_id":   tradeId,
