@@ -72,15 +72,15 @@ var tradeTypeTable = map[string]TokenType{
 }
 
 var tradeTypeLabel = map[string]string{
-	`xlayer`:   `XLayer(OKX)`,
-	`trc20`:    `TRC20(波场)`,
-	`bep20`:    `BEP20(币安)`,
-	`erc20`:    `ERC20(以太坊)`,
+	`xlayer`:   `XLayer•OKX`,
+	`trc20`:    `TRC20•波场`,
+	`bep20`:    `BEP20•币安`,
+	`erc20`:    `ERC20•以太坊`,
 	`solana`:   `Solana`,
 	`aptos`:    `Aptos`,
 	`polygon`:  `Polygon`,
 	`arbitrum`: `Arbitrum One`,
-	`trx`:      `波场Tron`,
+	`trx`:      `Tron•波场`,
 }
 
 type WalletAddress struct {
