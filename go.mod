@@ -19,17 +19,14 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	github.com/v03413/go-cache v0.0.0-20250526011249-dad9b89e1b2a
 	github.com/v03413/tronprotocol v0.0.0-20240824084238-bbd62f5e0158
-	google.golang.org/grpc v1.74.2
-	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.30.1
+	google.golang.org/grpc v1.73.0
+	gorm.io/gorm v1.30.0
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/BurntSushi/toml v1.5.0 // indirect
-	github.com/bytedance/sonic v1.14.0 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/bytedance/sonic v1.13.3 // indirect
+	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
