@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -68,6 +69,18 @@ var tradeTypeTable = map[string]TokenType{
 
 	// TRX
 	OrderTradeTypeTronTrx: TokenTypeTRX,
+}
+
+var tradeTypeLabel = map[string]string{
+	`xlayer`:   `XLayer(OKX)`,
+	`trc20`:    `TRC20(波场)`,
+	`bep20`:    `BEP20(币安)`,
+	`erc20`:    `ERC20(以太坊)`,
+	`solana`:   `Solana`,
+	`aptos`:    `Aptos`,
+	`polygon`:  `Polygon`,
+	`arbitrum`: `Arbitrum One`,
+	`trx`:      `波场Tron`,
 }
 
 type WalletAddress struct {
@@ -261,6 +274,14 @@ func GetTokenType(tradeType string) (TokenType, error) {
 	return "", fmt.Errorf("unsupported trade type: %s", tradeType)
 }
 
+func GetTradeTypeLabel(tradeType string) string {
+	parts := strings.SplitN(tradeType, `.`, 2)
+	if len(parts) == 2 {
+		return tradeTypeLabel[parts[1]]
+	}
+	return ""
+}
+
 func GetAvailableAddress(address, tradeType string) []WalletAddress {
 	var rows []WalletAddress
 	var db = DB.Where("trade_type = ?", tradeType)
@@ -280,4 +301,19 @@ func GetAvailableAddress(address, tradeType string) []WalletAddress {
 	}
 
 	return rows
+}
+
+func GetAvailableTradeType() (map[string][]string, error) {
+	var rows []WalletAddress
+	err := DB.Select("trade_type").Group("trade_type").Find(&rows, "status = ?", StatusEnable).Error
+	if err != nil {
+		return nil, err
+	}
+	tradeTypes := url.Values{}
+	for _, v := range rows {
+		if currency, err := GetTokenType(v.TradeType); err == nil {
+			tradeTypes.Add(string(currency), v.TradeType)
+		}
+	}
+	return tradeTypes, err
 }

@@ -11,3 +11,8 @@ func respSuccJson(data interface{}) gin.H {
 
 	return gin.H{"status_code": 200, "message": "success", "data": data, "request_id": ""}
 }
+
+type RespNetwork struct {
+	Value string `json:"value"`
+	Label string `json:"label"`
+}

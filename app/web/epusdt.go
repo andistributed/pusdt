@@ -261,14 +261,51 @@ func queryTransaction(ctx *gin.Context) {
 
 		return
 	}
+	actualCurrency, _ := model.GetTokenType(order.TradeType)
 	// 返回响应数据
-	ctx.JSON(200, gin.H{
+	ctx.JSON(200, respSuccJson(gin.H{
 		"trade_id":        order.TradeId,
 		"trade_hash":      order.TradeHash,
 		"status":          order.Status,
 		"currency":        "CNY",
 		"amount":          order.Money,
-		"actual_currency": "USDT",
+		"actual_currency": actualCurrency,
 		"actual_amount":   help.Atof(order.Amount),
-	})
+	}))
+}
+
+func queryNetworks(ctx *gin.Context) {
+	data := ctx.GetStringMap("data")
+	if v, ok := data["timestamp"]; ok {
+		timestamp := cast.ToInt64(fmt.Sprintf(`%0.f`, v))
+		if conf.IsExpired(timestamp) {
+			log.Warnf(`提交的参数已经过期: %[1]v(%[2]v)`, timestamp, time.Unix(timestamp, 0))
+			ctx.JSON(200, respFailJson("提交的参数已经过期"))
+
+			return
+		}
+	}
+
+	tradeTypes, err := model.GetAvailableTradeType()
+	if err != nil {
+		ctx.JSON(200, respFailJson(err.Error()))
+
+		return
+	}
+	result := map[string][]RespNetwork{}
+	for currency, networks := range tradeTypes {
+		result[currency] = make([]RespNetwork, len(networks))
+		for index, tradeType := range networks {
+			v := RespNetwork{
+				Value: tradeType,
+				Label: model.GetTradeTypeLabel(tradeType),
+			}
+			if len(v.Label) == 0 {
+				v.Label = v.Value
+			}
+			result[currency][index] = v
+		}
+	}
+	// 返回响应数据
+	ctx.JSON(200, respSuccJson(result))
 }

@@ -39,6 +39,7 @@ func Start() {
 		orderGrp.POST("/create-transaction", createTransaction)
 		orderGrp.POST("/cancel-transaction", cancelTransaction)
 		orderGrp.POST("/query-transaction", queryTransaction)
+		orderGrp.POST("/query-networks", queryNetworks)
 	}
 
 	// 易支付兼容
