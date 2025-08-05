@@ -309,6 +309,8 @@ func GetAvailableAddress(address, tradeType string) []WalletAddress {
 
 			return []WalletAddress{wa}
 		}
+
+		// 过滤掉禁用的钱包地址
 		filteredRows := make([]WalletAddress, 0, len(rows))
 		for _, row := range rows {
 			if row.Status == StatusEnable {
