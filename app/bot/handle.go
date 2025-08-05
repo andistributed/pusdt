@@ -63,6 +63,19 @@ func addWalletAddress(u *models.Update) {
 	}
 
 	var wa = model.WalletAddress{TradeType: cast.ToString(tradeType), Address: address, Status: model.StatusEnable, OtherNotify: model.OtherNotifyDisable, Name: name}
+
+	// 检查是否重复添加
+	if exists, err := model.ExistsAddress(wa.Address, wa.TradeType); err != nil {
+		SendMessage(&bot.SendMessageParams{Text: "❌地址查询出错: " + err.Error()})
+
+		return
+	} else if exists {
+		SendMessage(&bot.SendMessageParams{Text: "❌地址添加失败，数据库中已经存在相同钱包类型的地址"})
+
+		return
+	}
+
+	// 	添加到数据库
 	var r = model.DB.Create(&wa)
 	if r.Error != nil {
 		SendMessage(&bot.SendMessageParams{Text: "❌地址添加失败，" + r.Error.Error()})

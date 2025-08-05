@@ -282,22 +282,40 @@ func GetTradeTypeLabel(tradeType string) string {
 	return ""
 }
 
+func ExistsAddress(address, tradeType string) (bool, error) {
+	var count int64
+	err := DB.Model(&WalletAddress{}).Where("trade_type = ? AND address = ?", tradeType, address).Count(&count).Error
+	return count > 0, err
+}
+
 func GetAvailableAddress(address, tradeType string) []WalletAddress {
 	var rows []WalletAddress
 	var db = DB.Where("trade_type = ?", tradeType)
 	if address != "" {
 
 		db = db.Where("address = ?", address)
+	} else {
+
+		db = db.Where("status = ?", StatusEnable)
 	}
 
 	db.Find(&rows)
 
-	if len(rows) == 0 && address != "" {
-		var wa = WalletAddress{TradeType: tradeType, Address: address, Status: StatusEnable, OtherNotify: OtherNotifyDisable}
+	if address != "" {
+		if len(rows) == 0 {
+			var wa = WalletAddress{TradeType: tradeType, Address: address, Status: StatusEnable, OtherNotify: OtherNotifyDisable}
 
-		DB.Create(&wa)
+			DB.Create(&wa)
 
-		return []WalletAddress{wa}
+			return []WalletAddress{wa}
+		}
+		filteredRows := make([]WalletAddress, 0, len(rows))
+		for _, row := range rows {
+			if row.Status == StatusEnable {
+				filteredRows = append(filteredRows, row)
+			}
+		}
+		return filteredRows
 	}
 
 	return rows
