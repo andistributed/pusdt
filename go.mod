@@ -20,10 +20,13 @@ require (
 	github.com/v03413/go-cache v0.0.0-20250526011249-dad9b89e1b2a
 	github.com/v03413/tronprotocol v0.0.0-20240824084238-bbd62f5e0158
 	google.golang.org/grpc v1.73.0
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.0
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
