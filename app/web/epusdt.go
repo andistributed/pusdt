@@ -184,7 +184,11 @@ func checkoutCounter(ctx *gin.Context) {
 		return
 	}
 
-	ctx.HTML(200, order.TradeType+".html", gin.H{
+	// 获取支付配置
+	paymentConfig := GetPaymentConfig(order.TradeType)
+
+	// 构建模板数据
+	templateData := gin.H{
 		"http_host":  uri.Host,
 		"amount":     order.Amount,
 		"address":    order.Address,
@@ -194,7 +198,14 @@ func checkoutCounter(ctx *gin.Context) {
 		"trade_id":   tradeId,
 		"order_id":   order.OrderId,
 		"trade_type": order.TradeType,
-	})
+		// 支付配置
+		"Coin":            paymentConfig.Coin,
+		"Network":         paymentConfig.Network,
+		"NetworkFullName": paymentConfig.NetworkFullName,
+		"WarningCoin":     paymentConfig.WarningCoin,
+	}
+
+	ctx.HTML(200, "payment.html", templateData)
 }
 
 func checkStatus(ctx *gin.Context) {

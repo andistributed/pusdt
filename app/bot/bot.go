@@ -3,11 +3,12 @@ package bot
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/log"
-	"time"
 )
 
 var api *bot.Bot
@@ -82,7 +83,7 @@ func Start() {
 
 	SendMessage(&bot.SendMessageParams{
 		ChatID: conf.BotNotifyTarget(),
-		Text:   Welcome()
+		Text:   Welcome(),
 	})
 
 	fmt.Println(fmt.Sprintf("Bot UserName: %s %s%s", me.Username, me.FirstName, me.LastName))
