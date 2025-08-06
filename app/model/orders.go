@@ -5,6 +5,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/help"
+	"github.com/v03413/bepusdt/app/task/rate"
 	"strconv"
 	"sync"
 	"time"
@@ -208,11 +209,7 @@ func CalcTradeAmount(wa []WalletAddress, rate, money float64, tradeType string) 
 		lock[order.Address+order.Amount] = true
 	}
 
-	var atom, prec = conf.GetUsdtAtomicity()
-	if tradeType == OrderTradeTypeTronTrx {
-
-		atom, prec = conf.GetTrxAtomicity()
-	}
+	var atom, prec = getTokenAtomicityByTradeType(tradeType)
 
 	var payAmount, _ = decimal.NewFromString(strconv.FormatFloat(money/rate, 'f', prec, 64))
 	for {
@@ -228,5 +225,81 @@ func CalcTradeAmount(wa []WalletAddress, rate, money float64, tradeType string) 
 
 		// 已经被占用，每次递增一个原子精度
 		payAmount = payAmount.Add(atom)
+	}
+}
+
+func CalcTradeExpiredAt(sec uint64) time.Time {
+	timeout := conf.GetExpireTime() * time.Second
+	if sec >= 60 {
+		timeout = time.Duration(sec) * time.Second
+	}
+
+	return time.Now().Add(timeout)
+}
+
+func GetTradeRate(token TokenType, param string) (float64, error) {
+	if param != "" {
+		switch token {
+		case TokenTypeUSDT:
+			return rate.ParseFloatRate(param, rate.GetOkxUsdtRawRate()), nil
+		case TokenTypeUSDC:
+			return rate.ParseFloatRate(param, rate.GetOkxUsdcRawRate()), nil
+		case TokenTypeTRX:
+			return rate.ParseFloatRate(param, rate.GetOkxTrxRawRate()), nil
+		}
+
+		return 0, fmt.Errorf("(%s)交易汇率计算获取失败：%s", token, param)
+	}
+
+	switch token {
+	case TokenTypeUSDT:
+		return rate.GetUsdtCalcRate(), nil
+	case TokenTypeUSDC:
+		return rate.GetUsdcCalcRate(), nil
+	case TokenTypeTRX:
+		return rate.GetTrxCalcRate(), nil
+	}
+
+	return 0, fmt.Errorf("(%s)交易汇率获取失败", token)
+}
+
+func getTokenAtomicityByTradeType(tradeType string) (decimal.Decimal, int) {
+	switch tradeType {
+	case OrderTradeTypeTronTrx:
+		return conf.GetTrxAtomicity()
+	case OrderTradeTypeUsdtTrc20:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtErc20:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtBep20:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtAptos:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtXlayer:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtSolana:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtPolygon:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdtArbitrum:
+		return conf.GetUsdtAtomicity()
+	case OrderTradeTypeUsdcTrc20:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcErc20:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcBep20:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcAptos:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcXlayer:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcSolana:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcPolygon:
+		return conf.GetUsdcAtomicity()
+	case OrderTradeTypeUsdcArbitrum:
+		return conf.GetUsdcAtomicity()
+	default:
+		return conf.GetUsdtAtomicity()
 	}
 }
