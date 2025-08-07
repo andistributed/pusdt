@@ -5,6 +5,10 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"io"
+	"math/big"
+	"time"
+
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/panjf2000/ants/v2"
 	"github.com/shopspring/decimal"
@@ -13,14 +17,11 @@ import (
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/log"
 	"github.com/v03413/bepusdt/app/model"
-	"io"
-	"math/big"
-	"time"
 )
 
 // 参考文档
 //  - https://solana.com/zh/docs/rpc
-//  - https://github.com/solana-program/token/blob/main/program/src/instruction.rs
+//  - https://github.com/solana-program/token/blob/6d18ff73b1dd30703a30b1ca941cb0f1d18c2b2a/program/src/instruction.rs
 
 type solana struct {
 	slotConfirmedOffset int64
@@ -260,13 +261,7 @@ func (s *solana) slotParse(n any) {
 		}
 
 		// 解析内部指令
-		innerInstructions := trans.Get("meta.innerInstructions").Array()
-		if len(innerInstructions) == 0 {
-
-			continue
-		}
-
-		for _, itm := range innerInstructions {
+		for _, itm := range trans.Get("meta.innerInstructions").Array() {
 			for _, instr := range itm.Get("instructions").Array() {
 				if instr.Get("programIdIndex").Int() != splTokenIndex {
 
