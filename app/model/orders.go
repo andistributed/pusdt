@@ -197,31 +197,68 @@ func GetNotifyFailedTradeOrders() ([]TradeOrders, error) {
 	return orders, res.Error
 }
 
+func existsWaitPayOrderByMoney(tradeType string, walletAddr string, payAmount string) (bool, error) {
+	var count int64
+	err := DB.Model(&TradeOrders{}).Where(
+		"status = ? and trade_type = ? and address = ? and amount = ?",
+		OrderStatusWaiting, tradeType, walletAddr, payAmount,
+	).Count(&count).Error
+	return count > 0, err
+}
+
 // CalcTradeAmount 计算当前实际可用的交易金额
-func CalcTradeAmount(wa []WalletAddress, rate, money float64, tradeType string) (WalletAddress, string) {
+func CalcTradeAmount(wa []WalletAddress, rate, money float64, tradeType string) (WalletAddress, string, error) {
 	calcMutex.Lock()
 	defer calcMutex.Unlock()
+	var err error
 
-	var orders []TradeOrders
-	var lock = make(map[string]bool)
-	DB.Where("status = ? and trade_type = ?", OrderStatusWaiting, tradeType).Find(&orders)
-	for _, order := range orders {
+	var isExists func(walletAddr string, payAmount string) (bool, error)
 
-		lock[order.Address+order.Amount] = true
+	// 如果数据量太大可以采用此方案
+	if conf.GetConfig().AmountQueryEach {
+		var order TradeOrders
+		var count int64
+		isExists = func(walletAddr string, payAmount string) (bool, error) {
+			count = 0
+			err := DB.Model(&order).Where(
+				"status = ? and trade_type = ? and address = ? and amount = ?",
+				OrderStatusWaiting, tradeType, walletAddr, payAmount,
+			).Count(&count).Error
+			return count > 0, err
+		}
+	} else {
+		var orders []TradeOrders
+		var lock = make(map[string]bool)
+		err = DB.Where("status = ? and trade_type = ?", OrderStatusWaiting, tradeType).Find(&orders).Error
+		if err != nil {
+			return WalletAddress{}, ``, err
+		}
+		for _, order := range orders {
+			lock[order.Address+order.Amount] = true
+		}
+		isExists = func(walletAddr string, payAmount string) (bool, error) {
+			return lock[walletAddr+payAmount], nil
+		}
 	}
 
-	var atom, prec = getTokenAtomicityByTradeType(tradeType)
-
-	var payAmount, _ = decimal.NewFromString(strconv.FormatFloat(money/rate, 'f', prec, 64))
+	atom, prec := getTokenAtomicityByTradeType(tradeType)
+	var payAmount decimal.Decimal
+	payAmount, err = decimal.NewFromString(strconv.FormatFloat(money/rate, 'f', prec, 64))
+	if err != nil {
+		return WalletAddress{}, ``, err
+	}
+	var exists bool
 	for {
 		for _, address := range wa {
-			_key := address.Address + payAmount.String()
-			if _, ok := lock[_key]; ok {
-
+			exists, err = isExists(address.Address, payAmount.String())
+			if err != nil {
+				return WalletAddress{}, ``, err
+			}
+			if exists {
 				continue
 			}
 
-			return address, payAmount.String()
+			return address, payAmount.String(), err
 		}
 
 		// 已经被占用，每次递增一个原子精度

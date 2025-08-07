@@ -129,7 +129,10 @@ func buildTrade(p orderParams) (trade, error) {
 	}
 
 	// 计算交易金额
-	address, amount := model.CalcTradeAmount(wallet, rate, p.Money, p.TradeType)
+	address, amount, err := model.CalcTradeAmount(wallet, rate, p.Money, p.TradeType)
+	if err != nil {
+		return trade{}, err
+	}
 
 	return trade{
 		TokenType: tokenType,
