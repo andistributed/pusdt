@@ -280,11 +280,9 @@ func (e *evm) blockParse(a any) {
 			var amount *big.Int
 			if bytes.Equal(input[0:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) { // transfer function ID
 				recv, amount = e.parseErc20ContractTransfer(input)
-			}
-			if bytes.Equal(input[0:4], []byte{0x23, 0xb8, 0x72, 0xdd}) { // transfer from function ID
+			} else if bytes.Equal(input[0:4], []byte{0x23, 0xb8, 0x72, 0xdd}) { // transfer from function ID
 				from, recv, amount = e.parseErc20ContractTransferFrom(input)
-			}
-			if bytes.Equal(input[0:4], []byte{0xe3, 0xee, 0x16, 0x0e}) || bytes.Equal(input[0:4], []byte{0xcf, 0x09, 0x29, 0x95}) { // transferWithAuthorization function ID
+			} else if bytes.Equal(input[0:4], []byte{0xe3, 0xee, 0x16, 0x0e}) || bytes.Equal(input[0:4], []byte{0xcf, 0x09, 0x29, 0x95}) { // transferWithAuthorization function ID
 				from, recv, amount = e.parseUsdcTransferWithAuthorization(input)
 			}
 
