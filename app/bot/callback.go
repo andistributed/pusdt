@@ -203,7 +203,7 @@ func cbAddressBackAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	cmdStartHandle(ctx, b, u)
 }
 
-func cbAddressReanmeAction(ctx context.Context, b *bot.Bot, u *models.Update) {
+func cbAddressRenameAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 	var id = getArg(ctx, 1)
 	var addr = getArg(ctx, 2)
 	var k = fmt.Sprintf("%s_%d_rename_id", cbAddressRename, u.CallbackQuery.Message.Message.Chat.ID)
