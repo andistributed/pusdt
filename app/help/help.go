@@ -215,3 +215,7 @@ func Atof(s string) float64 {
 	v, _ := strconv.ParseFloat(s, 64)
 	return v
 }
+
+func GenerateNonce() (string, error) {
+	return gonanoid.New(16)
+}

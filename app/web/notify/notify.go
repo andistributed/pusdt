@@ -27,10 +27,11 @@ type EpNotify struct {
 	BlockTransactionId string  `json:"block_transaction_id"` // 区块id
 	Signature          string  `json:"signature"`            // 签名
 	Status             int     `json:"status"`               //  1：等待支付，2：支付成功，3：订单超时
+	Nonce              string  `json:"nonce,omitempty"`      // 一次性随机字符串
 }
 
 func (e *EpNotify) ToMap() map[string]interface{} {
-	return map[string]interface{}{
+	v := map[string]interface{}{
 		"trade_id":             e.TradeId,
 		"order_id":             e.OrderId,
 		"amount":               e.Amount,
@@ -40,6 +41,10 @@ func (e *EpNotify) ToMap() map[string]interface{} {
 		"signature":            e.Signature,
 		"status":               e.Status,
 	}
+	if len(e.Nonce) > 0 {
+		v["nonce"] = e.Nonce
+	}
+	return v
 }
 
 func Handle(order model.TradeOrders) {
@@ -110,6 +115,7 @@ func epusdt(order model.TradeOrders) {
 		BlockTransactionId: order.TradeHash,
 		Status:             order.Status,
 	}
+	body.Nonce, _ = help.GenerateNonce()
 	data := body.ToMap()
 	// 签名
 	body.Signature = help.EpusdtSign(data, conf.GetAuthToken())
@@ -195,6 +201,7 @@ func Bepusdt(order model.TradeOrders) {
 			BlockTransactionId: o.TradeHash,
 			Status:             o.Status,
 		}
+		body.Nonce, _ = help.GenerateNonce()
 		data := body.ToMap()
 		// 签名
 		body.Signature = help.EpusdtSign(data, conf.GetAuthToken())
