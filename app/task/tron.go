@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"math/big"
+	"time"
+
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/panjf2000/ants/v2"
@@ -18,8 +21,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
-	"math/big"
-	"time"
 )
 
 var gasFreeUsdtTokenAddress = []byte{0xa6, 0x14, 0xf8, 0x03, 0xb6, 0xfd, 0x78, 0x09, 0x86, 0xa4, 0x2c, 0x78, 0xec, 0x9c, 0x7f, 0x77, 0xe6, 0xde, 0xd1, 0x3c}
@@ -315,7 +316,7 @@ func (t *tron) blockParse(n any) {
 		resourceQueue.In <- resources
 	}
 
-	log.Info("区块扫描完成", num, conf.GetBlockSuccRate(conf.Tron), conf.Tron)
+	log.Debug("区块扫描完成", num, conf.GetBlockSuccRate(conf.Tron), conf.Tron)
 }
 
 func (t *tron) blockInitOffset(now int64) {

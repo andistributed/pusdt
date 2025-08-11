@@ -3,6 +3,11 @@ package task
 import (
 	"context"
 	"fmt"
+	"io"
+	"math/big"
+	"strings"
+	"time"
+
 	"github.com/panjf2000/ants/v2"
 	"github.com/shopspring/decimal"
 	"github.com/smallnest/chanx"
@@ -10,10 +15,6 @@ import (
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/log"
 	"github.com/v03413/bepusdt/app/model"
-	"io"
-	"math/big"
-	"strings"
-	"time"
 )
 
 type aptos struct {
@@ -379,7 +380,7 @@ func (a *aptos) versionParse(n any) {
 		transferQueue.In <- transfers
 	}
 
-	log.Info("区块扫描完成", fmt.Sprintf("%d.%d", p.Start, p.Limit), conf.GetBlockSuccRate(net), net)
+	log.Debug("区块扫描完成", fmt.Sprintf("%d.%d", p.Start, p.Limit), conf.GetBlockSuccRate(net), net)
 }
 
 func (a *aptos) padAddressLeadingZeros(addr string) string {

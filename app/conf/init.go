@@ -257,6 +257,13 @@ func GetDebug() bool {
 	return cfg.Debug
 }
 
+func GetLogLevel() string {
+	if v := os.Getenv(`BEPUSDT_LOGLEVEL`); len(v) > 0 {
+		return v
+	}
+	return ``
+}
+
 func GetAppName() string {
 
 	return cfg.AppName

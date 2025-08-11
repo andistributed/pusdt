@@ -21,7 +21,12 @@ func Init() error {
 		FullTimestamp:   true,
 	})
 
-	logger.SetLevel(logrus.InfoLevel)
+	logLevelStr := conf.GetLogLevel()
+	logLevel, err := logrus.ParseLevel(logLevelStr)
+	if err != nil {
+		logLevel = logrus.InfoLevel
+	}
+	logger.SetLevel(logLevel)
 
 	// output, err := os.OpenFile(conf.GetOutputLog(), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	// if err != nil {

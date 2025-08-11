@@ -293,7 +293,7 @@ func (s *solana) slotParse(n any) {
 		}
 	}
 
-	log.Info("区块扫描完成", slot, conf.GetBlockSuccRate(network), network)
+	log.Debug("区块扫描完成", slot, conf.GetBlockSuccRate(network), network)
 }
 
 func (s *solana) parseTransfer(instr gjson.Result, accountKeys []string, tokenAccountMap map[string]solanaTokenOwner) transfer {

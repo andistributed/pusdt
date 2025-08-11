@@ -262,7 +262,7 @@ func (e *evm) getBlockByNumber(a any) {
 		transferQueue.In <- transfers
 	}
 
-	log.Info("区块扫描完成", b, conf.GetBlockSuccRate(e.Type), e.Type)
+	log.Debug("区块扫描完成", b, conf.GetBlockSuccRate(e.Type), e.Type)
 }
 
 func (e *evm) parseBlockTransfer(b evmBlock, timestamp map[string]time.Time) ([]transfer, error) {

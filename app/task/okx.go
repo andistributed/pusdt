@@ -1,18 +1,19 @@
 package task
 
 import (
-	"fmt"
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/log"
 	"github.com/v03413/bepusdt/app/task/rate"
-	"io"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func init() {
@@ -30,7 +31,7 @@ func OkxUsdtRateStart(context.Context) {
 		rate.SetOkxUsdtCnyRate(conf.GetUsdtRate(), rawRate)
 	}
 
-	log.Info("当前 USDT_CNY 计算汇率：", rate.GetUsdtCalcRate())
+	log.Debug("当前 USDT_CNY 计算汇率：", rate.GetUsdtCalcRate())
 }
 
 // OkxUsdcRateStart Okx USDC_CNY 汇率监控
@@ -42,7 +43,7 @@ func OkxUsdcRateStart(context.Context) {
 		rate.SetOkxUsdcCnyRate(conf.GetUsdcRate(), rawRate)
 	}
 
-	log.Info("当前 USDC_CNY 计算汇率：", rate.GetUsdcCalcRate())
+	log.Debug("当前 USDC_CNY 计算汇率：", rate.GetUsdcCalcRate())
 }
 
 // OkxTrxRateStart  Okx TRX_CNY 汇率监控
@@ -54,7 +55,7 @@ func OkxTrxRateStart(context.Context) {
 		rate.SetOkxTrxCnyRate(conf.GetTrxRate(), price)
 	}
 
-	log.Info("当前 TRX_CNY 计算汇率：", rate.GetTrxCalcRate())
+	log.Debug("当前 TRX_CNY 计算汇率：", rate.GetTrxCalcRate())
 }
 
 // getOkxUsdtCnySellPrice  Okx  C2C快捷交易 USDT出售 实时汇率
