@@ -2,6 +2,7 @@ package log
 
 import (
 	"io"
+	"os"
 
 	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
@@ -51,8 +52,11 @@ func Init() error {
 		MaxAge:     cfg.MaxAge,
 		Compress:   false,
 	}
-	logger.SetOutput(lumberJackLogger)
-
+	if conf.GetLogOutputConsole() {
+		logger.SetOutput(io.MultiWriter(os.Stdout, lumberJackLogger))
+	} else {
+		logger.SetOutput(lumberJackLogger)
+	}
 	return nil
 }
 

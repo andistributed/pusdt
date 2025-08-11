@@ -258,10 +258,18 @@ func GetDebug() bool {
 }
 
 func GetLogLevel() string {
-	if v := os.Getenv(`BEPUSDT_LOGLEVEL`); len(v) > 0 {
+	if v := os.Getenv(`BEPUSDT_LOG_LEVEL`); len(v) > 0 {
 		return v
 	}
 	return ``
+}
+
+func GetLogOutputConsole() bool {
+	if v := os.Getenv(`BEPUSDT_LOG_OUTPUT_CONSOLE`); len(v) > 0 {
+		y, _ := strconv.ParseBool(v)
+		return y
+	}
+	return false
 }
 
 func GetAppName() string {
