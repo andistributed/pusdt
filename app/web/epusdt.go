@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/v03413/bepusdt/app"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/help"
 	"github.com/v03413/bepusdt/app/log"
@@ -179,6 +180,8 @@ func cancelTransaction(ctx *gin.Context) {
 	ctx.JSON(200, respSuccJson(gin.H{"trade_id": tradeId}))
 }
 
+var AssetVer = app.Version
+
 func checkoutCounter(ctx *gin.Context) {
 	tradeId := ctx.Param("trade_id")
 	order, ok := model.GetTradeOrder(tradeId)
@@ -216,8 +219,9 @@ func checkoutCounter(ctx *gin.Context) {
 			"network_full_name": paymentConfig.NetworkFullName,
 			"warning_coin":      paymentConfig.WarningCoin,
 		},
-		"home_url": conf.GetConfig().HomeURL,
-		"app_name": conf.GetConfig().AppName,
+		"home_url":  conf.GetConfig().HomeURL,
+		"app_name":  conf.GetConfig().AppName,
+		"asset_ver": AssetVer,
 	}
 
 	ctx.HTML(200, "payment.html", templateData)
