@@ -161,9 +161,8 @@ body {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     border-radius: 6px;
-    padding: 6px;
-    min-width: 40px;
-    max-width: 42px;
+    padding: 6px 0;
+    width: 42px;
 }
 
 .time-number {
@@ -421,8 +420,7 @@ body {
     }
 
     .time-unit {
-        min-width: 35px;
-        padding: 5px 8px;
+        padding: 5px 0;
     }
 
     .time-number {
