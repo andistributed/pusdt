@@ -234,7 +234,7 @@ func Bepusdt(order model.TradeOrders) {
 
 		all, _ := io.ReadAll(resp.Body)
 
-		log.Info(fmt.Sprintf("订单回调成功[%d]：%s %s", order.Status, o.TradeId, string(all)))
+		log.Infof("订单回调成功[%d]：%s %s", order.Status, o.TradeId, string(all))
 
 		db.Commit()
 
@@ -248,7 +248,7 @@ func Bepusdt(order model.TradeOrders) {
 }
 
 func markNotifyFail(order model.TradeOrders, reason string) {
-	log.Warn(fmt.Sprintf("订单回调失败(%v)：%s %v", order.TradeId, reason, order.SetNotifyState(model.OrderNotifyStateFail)))
+	log.Warnf("订单回调失败(%v)：%s %v", order.TradeId, reason, order.SetNotifyState(model.OrderNotifyStateFail))
 	go func() {
 		bot.SendNotifyFailed(order, reason)
 	}()
