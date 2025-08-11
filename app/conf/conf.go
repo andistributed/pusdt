@@ -49,6 +49,7 @@ type Conf struct {
 		MaxBackups int `toml:"max_backups"`
 		MaxAge     int `toml:"max_age"`
 	} `toml:"log"`
-	Debug           bool `toml:"debug"`
-	AmountQueryEach bool `toml:"amount_query_each"`
+	Debug           bool   `toml:"debug"`
+	AmountQueryEach bool   `toml:"amount_query_each"`
+	HomeURL         string `toml:"home_url"`
 }
