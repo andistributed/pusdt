@@ -217,6 +217,7 @@ func checkoutCounter(ctx *gin.Context) {
 			"coin":              paymentConfig.Coin,
 			"network":           paymentConfig.Network,
 			"network_full_name": paymentConfig.NetworkFullName,
+			"network_title":     paymentConfig.NetworkTitle,
 			"warning_coin":      paymentConfig.WarningCoin,
 		},
 		"home_url":  conf.GetConfig().HomeURL,

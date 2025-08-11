@@ -34,10 +34,9 @@ var networkConfigs = map[string]PaymentConfig{
 		WarningCoin:     "BNB",
 	},
 	"usdt.polygon": {
-		Coin:            "USDT",
-		Network:         "Polygon",
-		NetworkFullName: "Polygon",
-		WarningCoin:     "MATIC",
+		Coin:        "USDT",
+		Network:     "Polygon",
+		WarningCoin: "MATIC",
 	},
 	"usdt.arbitrum": {
 		Coin:            "USDT",
@@ -46,22 +45,20 @@ var networkConfigs = map[string]PaymentConfig{
 		WarningCoin:     "ETH",
 	},
 	"usdt.solana": {
-		Coin:            "USDT",
-		Network:         "Solana",
-		NetworkFullName: "Solana",
-		WarningCoin:     "SOL",
+		Coin:        "USDT",
+		Network:     "Solana",
+		WarningCoin: "SOL",
 	},
 	"usdt.aptos": {
-		Coin:            "USDT",
-		Network:         "Aptos",
-		NetworkFullName: "Aptos",
-		WarningCoin:     "APT",
+		Coin:        "USDT",
+		Network:     "Aptos",
+		WarningCoin: "APT",
 	},
 	"usdt.xlayer": {
-		Coin:            "USDT",
-		Network:         "X Layer",
-		NetworkFullName: "OKX (X Layer)",
-		WarningCoin:     "OKB",
+		Coin:         "USDT",
+		Network:      "X Layer",
+		NetworkTitle: "OKX (X Layer)",
+		WarningCoin:  "OKB",
 	},
 	"usdc.erc20": {
 		Coin:            "USDC",
@@ -82,10 +79,9 @@ var networkConfigs = map[string]PaymentConfig{
 		WarningCoin:     "BNB",
 	},
 	"usdc.polygon": {
-		Coin:            "USDC",
-		Network:         "Polygon",
-		NetworkFullName: "Polygon",
-		WarningCoin:     "MATIC",
+		Coin:        "USDC",
+		Network:     "Polygon",
+		WarningCoin: "MATIC",
 	},
 	"usdc.arbitrum": {
 		Coin:            "USDC",
@@ -94,22 +90,20 @@ var networkConfigs = map[string]PaymentConfig{
 		WarningCoin:     "ETH",
 	},
 	"usdc.solana": {
-		Coin:            "USDC",
-		Network:         "Solana",
-		NetworkFullName: "Solana",
-		WarningCoin:     "SOL",
+		Coin:        "USDC",
+		Network:     "Solana",
+		WarningCoin: "SOL",
 	},
 	"usdc.aptos": {
-		Coin:            "USDC",
-		Network:         "Aptos",
-		NetworkFullName: "Aptos",
-		WarningCoin:     "APT",
+		Coin:        "USDC",
+		Network:     "Aptos",
+		WarningCoin: "APT",
 	},
 	"usdc.xlayer": {
-		Coin:            "USDC",
-		Network:         "X Layer",
-		NetworkFullName: "OKX (X Layer)",
-		WarningCoin:     "OKB",
+		Coin:         "USDC",
+		Network:      "X Layer",
+		NetworkTitle: "OKX (X Layer)",
+		WarningCoin:  "OKB",
 	},
 	"tron.trx": {
 		Coin:            "TRX",
@@ -124,6 +118,7 @@ type PaymentConfig struct {
 	Coin            string // 币种名称 (USDT, USDC, TRX)
 	Network         string // 网络标识 (ERC20, TRC20, BEP20, etc.)
 	NetworkFullName string // 网络全名 (以太坊 (Ethereum), 波场 (TRON), etc.)
+	NetworkTitle    string // 网络标题
 	WarningCoin     string // 警告币种 (ETH, TRX, BNB, etc.)
 }
 

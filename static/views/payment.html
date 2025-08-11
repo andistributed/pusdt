@@ -18,7 +18,13 @@
         <h1 class="payment-title">{{.pay.coin}} 支付</h1>
         <p class="payment-subtitle">
             <span class="status-indicator"></span>
-            请使用 <strong>{{.pay.network_full_name}}</strong> {{.pay.network}} 网络进行转账
+            请使用 {{if .pay.network_title -}}
+            <strong>{{.pay.network_title}}</strong>
+            {{- else if and .pay.network_full_name (ne .pay.network_full_name .pay.network) -}}
+            <strong>{{.pay.network_full_name}}</strong> {{.pay.network -}}
+            {{- else -}}
+            <strong>{{.pay.network}}</strong>
+            {{- end}} 网络进行转账
             <span class="network-badge">{{.pay.network}}</span>
         </p>
         <div class="order-info">
