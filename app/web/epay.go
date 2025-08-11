@@ -2,12 +2,13 @@ package web
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"github.com/v03413/bepusdt/app/conf"
 	"github.com/v03413/bepusdt/app/model"
 	"github.com/v03413/bepusdt/app/web/epay"
-	"net/http"
 )
 
 // epaySubmit 【兼容】易支付提交
@@ -35,7 +36,7 @@ func epaySubmit(ctx *gin.Context) {
 	}
 
 	if data["pid"] != epay.Pid {
-		ctx.String(200, "USDTGate 易支付兼容模式，商户号【PID】必须固定为"+epay.Pid)
+		ctx.String(200, conf.GetAppName()+" 易支付兼容模式，商户号【PID】必须固定为"+epay.Pid)
 
 		return
 	}

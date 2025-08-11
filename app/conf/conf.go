@@ -52,4 +52,11 @@ type Conf struct {
 	Debug           bool   `toml:"debug"`
 	AmountQueryEach bool   `toml:"amount_query_each"`
 	HomeURL         string `toml:"home_url"`
+	AppName         string `toml:"app_name"`
+}
+
+func (c *Conf) setDefaults() {
+	if c.AppName == `` {
+		c.AppName = `USDTGate`
+	}
 }

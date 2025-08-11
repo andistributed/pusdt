@@ -110,7 +110,7 @@ func SendNotifyFailed(o model.TradeOrders, reason string) {
 
 func Welcome() string {
 	return `
-👋 欢迎使用 USDTGate，一站式稳定币收款解决方案，支持 USDT / USDC，轻松集成，无需复杂配置。
+👋 欢迎使用 ` + conf.GetAppName() + `，一站式稳定币收款解决方案，支持 USDT / USDC，轻松集成，无需复杂配置。
 
 📌当前版本：` + app.Version + `
 📝发送命令 /start 可以开始使用

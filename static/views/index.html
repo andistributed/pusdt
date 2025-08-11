@@ -120,7 +120,7 @@
 </head>
 <body>
 <div class="tp-content">
-    <a><img src="/img/icon-4.png" alt=""/>{{ .title }}</a>
+    <a{{if .url}} href="{{.url}}" target="_blank"{{end}}><img src="/img/icon-4.png" alt=""/>{{ .title }}</a>
 </div>
 <script type="text/javascript" src="img/ThreeWebGL.js"></script>
 <script type="text/javascript" src="img/ThreeExtras.js"></script>

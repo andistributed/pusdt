@@ -210,11 +210,14 @@ func checkoutCounter(ctx *gin.Context) {
 		"trade_id":   tradeId,
 		"order_id":   order.OrderId,
 		"trade_type": order.TradeType,
-		// 支付配置
-		"Coin":            paymentConfig.Coin,
-		"Network":         paymentConfig.Network,
-		"NetworkFullName": paymentConfig.NetworkFullName,
-		"WarningCoin":     paymentConfig.WarningCoin,
+		"pay": gin.H{ // 支付配置
+			"coin":              paymentConfig.Coin,
+			"network":           paymentConfig.Network,
+			"network_full_name": paymentConfig.NetworkFullName,
+			"warning_coin":      paymentConfig.WarningCoin,
+		},
+		"home_url": conf.GetConfig().HomeURL,
+		"app_name": conf.GetConfig().AppName,
 	}
 
 	ctx.HTML(200, "payment.html", templateData)

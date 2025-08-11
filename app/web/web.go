@@ -20,7 +20,7 @@ func Start() {
 	{
 		engine.Use(gin.LoggerWithWriter(log.GetWriter()), gin.Recovery())
 		engine.GET("/", func(c *gin.Context) {
-			c.HTML(200, "index.html", gin.H{"title": "一款更易用的USDT收款网关"})
+			c.HTML(200, "index.html", gin.H{"title": "一款更易用的USDT收款网关", "url": conf.GetConfig().HomeURL})
 		})
 	}
 

@@ -47,6 +47,8 @@ func Init() error {
 		return fmt.Errorf("配置数据解析失败：%w", err)
 	}
 
+	cfg.setDefaults()
+
 	if BotToken() == "" || BotAdminID() == 0 {
 
 		return errors.New("telegram bot 参数 admin_id 或 token 均不能为空")
@@ -253,4 +255,14 @@ func GetDebug() bool {
 		cfg.Debug, _ = strconv.ParseBool(v)
 	}
 	return cfg.Debug
+}
+
+func GetAppName() string {
+
+	return cfg.AppName
+}
+
+func GetHomeURL() string {
+
+	return cfg.HomeURL
 }

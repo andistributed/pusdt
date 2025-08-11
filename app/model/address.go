@@ -279,7 +279,7 @@ func GetTradeTypeLabel(tradeType string) string {
 	if len(parts) == 2 {
 		return tradeTypeLabel[parts[1]]
 	}
-	return ""
+	return tradeTypeLabel[parts[0]]
 }
 
 func ExistsAddress(address, tradeType string) (bool, error) {
