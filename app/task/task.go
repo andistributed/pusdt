@@ -48,7 +48,7 @@ func register(t task) {
 	tasks = append(tasks, t)
 }
 
-func inAmountRange(tradeType string, payAmount decimal.Decimal) bool {
+func inAmountRange(payAmount decimal.Decimal) bool {
 	if payAmount.GreaterThan(conf.GetPaymentAmountMax()) {
 
 		return false
