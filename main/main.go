@@ -28,11 +28,11 @@ func init() {
 	}
 }
 
-var ASSET_VERSION = ``
+var COMMIT string
 
 func main() {
-	if len(ASSET_VERSION) > 0 {
-		web.AssetVer = ASSET_VERSION
+	if len(COMMIT) > 0 {
+		web.AssetVer = COMMIT
 	}
 	task.Start()
 
