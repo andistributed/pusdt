@@ -337,7 +337,12 @@ func (e *evm) parseBlockTransfer(b evmBlock, timestamp map[string]time.Time) ([]
 	return transfers, nil
 }
 
+var unitTestMode bool
+
 func rollBreak(network string) bool {
+	if unitTestMode {
+		return false
+	}
 	token, ok := chainTokenMap[network]
 	if !ok {
 
