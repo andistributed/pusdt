@@ -83,14 +83,6 @@ func Start() {
 	SendMessage(&bot.SendMessageParams{
 		ChatID: conf.BotNotifyTarget(),
 		Text:   Welcome(),
-		ReplyMarkup: models.InlineKeyboardMarkup{
-			InlineKeyboard: [][]models.InlineKeyboardButton{
-				{
-					{Text: "📢 关注频道", URL: "https://t.me/BEpusdtChannel"},
-					{Text: "💬 社区交流", URL: "https://t.me/BEpusdtChat"},
-				},
-			},
-		},
 	})
 
 	fmt.Printf("Bot UserName: %s %s%s\n", me.Username, me.FirstName, me.LastName)
