@@ -61,7 +61,7 @@ func orderTransferHandle(context.Context) {
 			//}
 
 			// 判断金额是否在允许范围内
-			if !inAmountRange(t.Amount) {
+			if !inAmountRange(t.TradeType, t.Amount) {
 
 				continue
 			}
@@ -108,7 +108,7 @@ func notOrderTransferHandle(context.Context) {
 					continue
 				}
 
-				if !inAmountRange(t.Amount) {
+				if !inAmountRange(t.TradeType, t.Amount) {
 
 					continue
 				}

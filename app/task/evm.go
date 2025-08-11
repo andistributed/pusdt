@@ -77,6 +77,7 @@ type evm struct {
 	Endpoint       string
 	Block          block
 	blockScanQueue *chanx.UnboundedChan[evmBlock]
+	debug          bool
 }
 
 type evmBlock struct {
@@ -119,6 +120,7 @@ func (e *evm) blockRoll(ctx context.Context) {
 		return
 	}
 
+	e.debugPrintln(`blockRoll`, body)
 	var res = gjson.ParseBytes(body)
 	var now = help.HexStr2Int(res.Get("result").String()).Int64() - e.Block.RollDelayOffset
 	if now <= 0 {
@@ -153,7 +155,9 @@ func (e *evm) blockRoll(ctx context.Context) {
 			to = now
 		}
 
-		e.blockScanQueue.In <- evmBlock{From: from, To: to}
+		n := evmBlock{From: from, To: to}
+		e.debugPrintln(`out`, n)
+		e.blockScanQueue.In <- n
 	}
 }
 
@@ -177,6 +181,15 @@ func (e *evm) blockInitOffset(now, offset int64) int64 {
 	return now
 }
 
+func (e *evm) debugPrintln(name string, v interface{}) {
+	if e.debug {
+		if b, y := v.([]byte); y {
+			v = string(b)
+		}
+		fmt.Printf(name+" %+v\n", v)
+	}
+}
+
 func (e *evm) blockDispatch(ctx context.Context) {
 	p, err := ants.NewPoolWithFunc(2, e.getBlockByNumber)
 	if err != nil {
@@ -192,6 +205,7 @@ func (e *evm) blockDispatch(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case n := <-e.blockScanQueue.Out:
+			e.debugPrintln(`out`, n)
 			if err := p.Invoke(n); err != nil {
 				e.blockScanQueue.In <- n
 
@@ -234,7 +248,7 @@ func (e *evm) getBlockByNumber(a any) {
 
 		return
 	}
-
+	e.debugPrintln(`getBlockByNumber`, body)
 	timestamp := make(map[string]time.Time)
 	for _, itm := range gjson.ParseBytes(body).Array() {
 		if itm.Get("error").Exists() {
@@ -258,7 +272,7 @@ func (e *evm) getBlockByNumber(a any) {
 	}
 
 	if len(transfers) >= 0 {
-
+		e.debugPrintln(`transfers`, transfers)
 		transferQueue.In <- transfers
 	}
 

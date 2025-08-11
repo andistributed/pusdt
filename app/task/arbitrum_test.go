@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/smallnest/chanx"
@@ -10,6 +11,7 @@ import (
 )
 
 func TestArbitrum(t *testing.T) {
+	os.Setenv(`BEPUSDT_LOG_OUTPUT_CONSOLE`, `1`)
 	log.Init()
 	unitTestMode = true
 	ctx := context.Background()
@@ -18,13 +20,16 @@ func TestArbitrum(t *testing.T) {
 		Type:     conf.Arbitrum,
 		Endpoint: conf.GetArbitrumRpcEndpoint(),
 		Block: block{
-			InitStartOffset: -600,
+			//InitStartOffset: -600,
 			ConfirmedOffset: 40,
 		},
 		blockScanQueue: chanx.NewUnboundedChan[evmBlock](ctx, 30),
+		debug:          true,
 	}
 	go arb.blockDispatch(ctx)
 
 	arb.blockRoll(ctx)
+
+	//arb.getBlockByNumber(evmBlock{From: 367218642, To: 367218642})
 
 }

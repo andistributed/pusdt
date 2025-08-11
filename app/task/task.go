@@ -2,10 +2,11 @@ package task
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
-	"github.com/v03413/bepusdt/app/conf"
 	"sync"
 	"time"
+
+	"github.com/shopspring/decimal"
+	"github.com/v03413/bepusdt/app/conf"
 )
 
 type contextKey struct{}
@@ -47,7 +48,7 @@ func register(t task) {
 	tasks = append(tasks, t)
 }
 
-func inAmountRange(payAmount decimal.Decimal) bool {
+func inAmountRange(tradeType string, payAmount decimal.Decimal) bool {
 	if payAmount.GreaterThan(conf.GetPaymentAmountMax()) {
 
 		return false
