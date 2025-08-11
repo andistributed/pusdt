@@ -240,7 +240,7 @@ func (e *evm) getBlockByNumber(a any) {
 		if itm.Get("error").Exists() {
 			conf.SetBlockFail(e.Type)
 			e.blockScanQueue.In <- b
-			log.Warn(fmt.Sprintf("%s eth_getBlockByNumber response error %s", e.Type, itm.Get("error").String()))
+			log.Warnf("%s eth_getBlockByNumber response error %s, header:\n%s\n", e.Type, itm.Get("error").String(), help.AsStringer(resp.Header, help.StringifyMethodList))
 
 			return
 		}
