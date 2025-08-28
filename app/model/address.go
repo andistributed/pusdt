@@ -83,7 +83,7 @@ var tradeTypeLabel = map[string]string{
 	`polygon`:  `Polygon`,
 	`arbitrum`: `Arbitrum One`,
 	`trx`:      `Tron(波场)`,
-	`base`:     `Base`,
+	`base`:     `Base(Coinbase)`,
 }
 
 type WalletAddress struct {

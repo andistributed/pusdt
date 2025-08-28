@@ -105,6 +105,11 @@ var networkConfigs = map[string]PaymentConfig{
 		NetworkTitle: "OKX (X Layer)",
 		WarningCoin:  "OKB",
 	},
+	"usdc.base": {
+		Coin:        "USDC",
+		Network:     "Base",
+		WarningCoin: "ETH",
+	},
 	"tron.trx": {
 		Coin:            "TRX",
 		Network:         "TRON",
