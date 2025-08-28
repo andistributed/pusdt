@@ -9,10 +9,7 @@ import (
 	"github.com/v03413/bepusdt/app/conf"
 )
 
-type contextKey struct{}
-
 type task struct {
-	ctx      context.Context
 	duration time.Duration
 	callback func(ctx context.Context)
 }
@@ -28,6 +25,7 @@ func Init() error {
 	polygonInit()
 	arbitrumInit()
 	xlayerInit()
+	baseInit()
 
 	return nil
 }
@@ -35,10 +33,6 @@ func Init() error {
 func register(t task) {
 	mu.Lock()
 	defer mu.Unlock()
-	if t.ctx == nil {
-
-		t.ctx = context.Background()
-	}
 
 	if t.callback == nil {
 
@@ -62,29 +56,29 @@ func inAmountRange(payAmount decimal.Decimal) bool {
 	return true
 }
 
-func Start() {
+func Start(ctx context.Context) {
 	mu.Lock()
 	defer mu.Unlock()
 
 	for _, t := range tasks {
 		go func(t task) {
 			if t.duration <= 0 {
-				t.callback(t.ctx)
+				t.callback(ctx)
 
 				return
 			}
 
-			t.callback(t.ctx)
+			t.callback(ctx)
 
 			ticker := time.NewTicker(t.duration)
 			defer ticker.Stop()
 
 			for {
 				select {
-				case <-t.ctx.Done():
+				case <-ctx.Done():
 					return
 				case <-ticker.C:
-					t.callback(t.ctx)
+					t.callback(ctx)
 				}
 			}
 		}(t)

@@ -17,7 +17,7 @@ func TestArbitrum(t *testing.T) {
 	ctx := context.Background()
 
 	arb := evm{
-		Type:     conf.Arbitrum,
+		Network:  conf.Arbitrum,
 		Endpoint: conf.GetArbitrumRpcEndpoint(),
 		Block: block{
 			//InitStartOffset: -600,

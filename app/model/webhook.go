@@ -21,6 +21,7 @@ const (
 	WebhookEventOrderPaid    = "order.paid"    // 订单支付
 	WebhookEventOrderTimeout = "order.timeout" // 订单超时
 	WebhookEventOrderCancel  = "order.cancel"  // 订单取消
+	WebhookEventOrderFailed  = "order.failed"  // 订单失败
 )
 
 var WebhookHandleQueue = chanx.NewUnboundedChan[Webhook](context.Background(), 30)

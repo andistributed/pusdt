@@ -1,6 +1,7 @@
 package notify
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,20 +49,28 @@ func (e *EpNotify) ToMap() map[string]interface{} {
 }
 
 func Handle(order model.TradeOrders) {
-	if order.ApiType == model.OrderApiTypeEpay {
-		epay(order)
+	if order.Status != model.OrderStatusSuccess {
 
 		return
 	}
 
-	epusdt(order)
+	var ctx, cancel = context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	if order.ApiType == model.OrderApiTypeEpay {
+		epay(ctx, order)
+
+		return
+	}
+
+	epusdt(ctx, order)
 }
 
-func epay(order model.TradeOrders) {
+func epay(ctx context.Context, order model.TradeOrders) {
 	var client = http.Client{Timeout: time.Second * 5}
 	var notifyUrl = fmt.Sprintf("%s?%s", order.NotifyUrl, e.BuildNotifyParams(order))
 
-	postReq, err2 := http.NewRequest("GET", notifyUrl, nil)
+	postReq, err2 := http.NewRequestWithContext(ctx, "GET", notifyUrl, nil)
 	if err2 != nil {
 		log.Error("Notify NewRequest Error: ", err2)
 
@@ -105,8 +114,8 @@ func epay(order model.TradeOrders) {
 	}
 }
 
-func epusdt(order model.TradeOrders) {
-	var body = EpNotify{
+func epusdt(ctx context.Context, order model.TradeOrders) {
+	var req = EpNotify{
 		TradeId:            order.TradeId,
 		OrderId:            order.OrderId,
 		Amount:             order.Money,
@@ -115,16 +124,21 @@ func epusdt(order model.TradeOrders) {
 		BlockTransactionId: order.TradeHash,
 		Status:             order.Status,
 	}
-	body.Nonce, _ = help.GenerateNonce()
-	data := body.ToMap()
+	req.Nonce, _ = help.GenerateNonce()
+	data := req.ToMap()
 	// 签名
-	body.Signature = help.EpusdtSign(data, conf.GetAuthToken())
+	req.Signature = help.EpusdtSign(data, conf.GetAuthToken())
 
 	// 再次序列化
-	jsonBody, err := json.Marshal(body)
+	jsonBody, err := json.Marshal(req)
+	if err != nil {
+		markNotifyFail(order, err.Error())
+
+		return
+	}
 	var client = http.Client{Timeout: time.Second * 5}
-	var postReq, err2 = http.NewRequest("POST", order.NotifyUrl, strings.NewReader(string(jsonBody)))
-	if err2 != nil {
+	postReq, err := http.NewRequestWithContext(ctx, "POST", order.NotifyUrl, strings.NewReader(string(jsonBody)))
+	if err != nil {
 		markNotifyFail(order, err.Error())
 
 		return
@@ -208,16 +222,21 @@ func Bepusdt(order model.TradeOrders) {
 
 		// 再次序列化
 		jsonBody, err := json.Marshal(body)
+		if err != nil {
+			db.Rollback()
+
+			return err
+		}
 		var client = http.Client{Timeout: time.Second * 5}
-		var req, err2 = http.NewRequest("POST", o.NotifyUrl, strings.NewReader(string(jsonBody)))
-		if err2 != nil {
+		req, err := http.NewRequest("POST", o.NotifyUrl, strings.NewReader(string(jsonBody)))
+		if err != nil {
 			db.Rollback()
 
 			return err
 		}
 
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Powered-By", "https://github.com/v03413/bepusdt")
+		req.Header.Set("Powered-By", "https://github.com/v03413/BEpusdt")
 		resp, err := client.Do(req)
 		if err != nil {
 			db.Rollback()

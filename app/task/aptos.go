@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/panjf2000/ants/v2"
@@ -53,6 +55,7 @@ func init() {
 	apt = newAptos()
 	register(task{callback: apt.versionDispatch})
 	register(task{callback: apt.versionRoll, duration: time.Second * 3})
+	register(task{callback: apt.tradeConfirmHandle, duration: time.Second * 5})
 }
 
 func newAptos() aptos {
@@ -65,13 +68,19 @@ func newAptos() aptos {
 	}
 }
 
-func (a *aptos) versionRoll(context.Context) {
+func (a *aptos) versionRoll(ctx context.Context) {
 	if rollBreak(conf.Aptos) {
 
 		return
 	}
 
-	resp, err := client.Get(conf.GetAptosRpcNode() + "/v1")
+	req, err := http.NewRequestWithContext(ctx, "GET", conf.GetAptosRpcNode()+"/v1", nil)
+	if err != nil {
+		log.Warn("aptos versionRoll Error creating request:", err)
+
+		return
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Warn("aptos versionRoll Error sending request:", err)
 
@@ -388,4 +397,64 @@ func (a *aptos) padAddressLeadingZeros(addr string) string {
 	addr = strings.Repeat("0", 64-len(addr)) + addr
 
 	return "0x" + addr
+}
+
+func (a *aptos) tradeConfirmHandle(ctx context.Context) {
+	var orders = getConfirmingOrders(networkTokenMap[conf.Aptos])
+	var wg sync.WaitGroup
+
+	var handle = func(o model.TradeOrders) {
+		req, err := http.NewRequestWithContext(ctx, "GET", conf.GetAptosRpcNode()+"v1/transactions/by_hash/"+o.TradeHash, nil)
+		if err != nil {
+			log.Warn("aptos tradeConfirmHandle Error creating request:", err)
+
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Warn("aptos tradeConfirmHandle Error sending request:", err)
+
+			return
+		}
+
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			log.Warn("aptos tradeConfirmHandle Error response status code:", resp.StatusCode)
+
+			return
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Warn("aptos tradeConfirmHandle Error reading response body:", err)
+
+			return
+		}
+
+		data := gjson.ParseBytes(body)
+		if data.Get("error_code").Exists() {
+			log.Warn("aptos tradeConfirmHandle Error:", data.Get("message").String())
+
+			return
+		}
+
+		if data.Get("version").String() != "" &&
+			data.Get("success").Bool() &&
+			data.Get("vm_status").String() == "Executed successfully" {
+
+			markFinalConfirmed(o)
+		}
+	}
+
+	for _, order := range orders {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			handle(order)
+		}()
+	}
+
+	wg.Wait()
 }

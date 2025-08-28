@@ -11,7 +11,7 @@ import (
 func ethInit() {
 	ctx := context.Background()
 	eth := evm{
-		Type:     conf.Ethereum,
+		Network:  conf.Ethereum,
 		Endpoint: conf.GetEthereumRpcEndpoint(),
 		Block: block{
 			InitStartOffset: -100,
@@ -20,6 +20,7 @@ func ethInit() {
 		blockScanQueue: chanx.NewUnboundedChan[evmBlock](ctx, 30),
 	}
 
-	register(task{ctx: ctx, callback: eth.blockDispatch})
-	register(task{ctx: ctx, callback: eth.blockRoll, duration: time.Second * 12})
+	register(task{callback: eth.blockDispatch})
+	register(task{callback: eth.blockRoll, duration: time.Second * 12})
+	register(task{callback: eth.tradeConfirmHandle, duration: time.Second * 5})
 }

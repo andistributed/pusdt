@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/hex"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil/base58"
@@ -48,8 +49,9 @@ var tr tron
 
 func init() {
 	tr = newTron()
-	register(task{duration: time.Second * 3, callback: tr.blockRoll}) // 大概3秒产生一个区块
 	register(task{duration: time.Second, callback: tr.blockDispatch})
+	register(task{duration: time.Second * 3, callback: tr.blockRoll})
+	register(task{duration: time.Second * 5, callback: tr.tradeConfirmHandle})
 }
 
 func newTron() tron {
@@ -395,6 +397,69 @@ func (t *tron) gasFreePermitTransfer(data []byte) (string, string, *big.Int) {
 	amount := big.NewInt(0).SetBytes(data[100:132])
 
 	return user, receiver, amount
+}
+
+func (t *tron) tradeConfirmHandle(ctx context.Context) {
+	var orders = getConfirmingOrders([]string{model.OrderTradeTypeTronTrx, model.OrderTradeTypeUsdtTrc20, model.OrderTradeTypeUsdcTrc20})
+
+	var wg sync.WaitGroup
+
+	var handle = func(o model.TradeOrders) {
+		conn, err := grpc.NewClient(conf.GetTronGrpcNode(), grpc.WithConnectParams(grpcParams), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Error("grpc.NewClient", err)
+
+			return
+		}
+
+		defer conn.Close()
+
+		var c = api.NewWalletClient(conn)
+
+		idBytes, err := hex.DecodeString(o.TradeHash)
+		if err != nil {
+			log.Error("hex.DecodeString", err)
+
+			return
+		}
+
+		if o.TradeType == model.OrderTradeTypeTronTrx {
+			trans, err := c.GetTransactionById(ctx, &api.BytesMessage{Value: idBytes})
+			if err != nil {
+				log.Error("GetTransactionById", err)
+
+				return
+			}
+
+			if trans.GetRet()[0].ContractRet == core.Transaction_Result_SUCCESS {
+				markFinalConfirmed(o)
+			}
+
+			return
+		}
+
+		info, err := c.GetTransactionInfoById(ctx, &api.BytesMessage{Value: idBytes})
+		if err != nil {
+			log.Error("GetTransactionInfoById", err)
+
+			return
+		}
+
+		if info.GetReceipt().GetResult() == core.Transaction_Result_SUCCESS {
+			markFinalConfirmed(o)
+		}
+	}
+
+	for _, order := range orders {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			handle(order)
+		}()
+	}
+
+	wg.Wait()
 }
 
 func (t *tron) base58CheckEncode(input []byte) string {

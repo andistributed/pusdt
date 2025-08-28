@@ -1,9 +1,12 @@
 package web
 
 import (
+	"context"
+	"errors"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/v03413/bepusdt/app/conf"
@@ -11,7 +14,7 @@ import (
 	"github.com/v03413/bepusdt/static"
 )
 
-func Start() {
+func Start(ctx context.Context) {
 	gin.SetMode(gin.ReleaseMode)
 
 	var listen = conf.GetListen()
@@ -45,13 +48,28 @@ func Start() {
 		engine.GET("/submit.php", epaySubmit)
 	}
 
-	log.Info("WEB尝试启动 Listen: ", listen)
-	go func() {
-		err := engine.Run(listen)
-		if err != nil {
+	var srv = &http.Server{Addr: listen, Handler: engine}
 
-			log.Error("Web启动失败", err)
+	log.Info("web server start listen", listen)
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("web server error", err)
 		}
+	}()
+
+	go func() {
+		<-ctx.Done()
+		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := srv.Shutdown(shutdown); err != nil {
+			log.Error("Web shutdown Error", err)
+
+			return
+		}
+
+		log.Info("web shutdown success.")
 	}()
 }
 

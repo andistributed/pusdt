@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"net/http"
+	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil/base58"
@@ -46,6 +48,7 @@ func init() {
 	sol = newSolana()
 	register(task{callback: sol.slotDispatch})
 	register(task{callback: sol.slotRoll, duration: time.Second * 5})
+	register(task{callback: sol.tradeConfirmHandle, duration: time.Second * 5})
 }
 
 func newSolana() solana {
@@ -57,15 +60,21 @@ func newSolana() solana {
 	}
 }
 
-func (s *solana) slotRoll(context.Context) {
+func (s *solana) slotRoll(ctx context.Context) {
 	if rollBreak(conf.Solana) {
 
 		return
 	}
 
-	post := []byte(`{"jsonrpc":"2.0","id":1,"method":"getSlot"}`)
+	req, err := http.NewRequestWithContext(ctx, "POST", conf.GetSolanaRpcEndpoint(), bytes.NewBuffer([]byte(`{"jsonrpc":"2.0","id":1,"method":"getSlot"}`)))
+	if err != nil {
+		log.Warn("slotRoll Error creating request:", err)
 
-	resp, err := client.Post(conf.GetSolanaRpcEndpoint(), "application/json", bytes.NewBuffer(post))
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Warn("slotRoll Error sending request:", err)
 
@@ -344,4 +353,63 @@ func (s *solana) parseTransfer(instr gjson.Result, accountKeys []string, tokenAc
 	trans.Amount = decimal.NewFromBigInt(b, exp)
 
 	return trans
+}
+
+func (s *solana) tradeConfirmHandle(ctx context.Context) {
+	var orders = getConfirmingOrders(networkTokenMap[conf.Solana])
+	var wg sync.WaitGroup
+
+	var handle = func(o model.TradeOrders) {
+		post := []byte(fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"method":"getSignatureStatuses","params":[["%s"],{"searchTransactionHistory":true}]}`, o.TradeHash))
+		req, err := http.NewRequestWithContext(ctx, "POST", conf.GetSolanaRpcEndpoint(), bytes.NewBuffer(post))
+		if err != nil {
+			log.Warn("solana tradeConfirmHandle Error creating request:", err)
+
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Warn("solana tradeConfirmHandle Error sending request:", err)
+
+			return
+		}
+
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			log.Warn("solana tradeConfirmHandle Error response status code:", resp.StatusCode)
+
+			return
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Warn("solana tradeConfirmHandle Error reading response body:", err)
+
+			return
+		}
+
+		data := gjson.ParseBytes(body)
+		if data.Get("error").Exists() {
+			log.Warn("solana tradeConfirmHandle Error:", data.Get("error").String())
+
+			return
+		}
+
+		if data.Get("result.value.0.confirmationStatus").String() == "finalized" {
+
+			markFinalConfirmed(o)
+		}
+	}
+
+	for _, order := range orders {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			handle(order)
+		}()
+	}
+
+	wg.Wait()
 }

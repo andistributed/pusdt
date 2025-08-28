@@ -14,6 +14,11 @@ import (
 )
 
 func SendTradeSuccMsg(order model.TradeOrders) {
+	if order.Status != model.OrderStatusSuccess {
+
+		return
+	}
+
 	// 获取代币类型
 	tokenType, err := model.GetTokenType(order.TradeType)
 	if err != nil {
