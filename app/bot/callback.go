@@ -327,7 +327,7 @@ func cbOrderDetailAction(ctx context.Context, b *bot.Bot, u *models.Update) {
 		})
 	}
 
-	if order.Status == model.OrderStatusExpired && order.NotifyState == model.OrderNotifyStateFail {
+	if (order.Status == model.OrderStatusExpired || order.Status == model.OrderStatusWaiting) && order.NotifyState == model.OrderNotifyStateFail {
 		markup.InlineKeyboard = append(markup.InlineKeyboard, []models.InlineKeyboardButton{
 			{Text: "⚠️直接标记已支付（即使未收到款）", CallbackData: cbMarkOrderSucc + "|" + order.TradeId},
 		})
