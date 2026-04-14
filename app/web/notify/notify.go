@@ -23,7 +23,7 @@ type EpNotify struct {
 	TradeId            string  `json:"trade_id"`             //  本地订单号
 	OrderId            string  `json:"order_id"`             //  客户交易id
 	Amount             float64 `json:"amount"`               //  订单金额 CNY
-	ActualAmount       float64 `json:"actual_amount"`        //  USDT 交易数额
+	TokenAmount        float64 `json:"token_amount"`         //  USDT 交易数额
 	Token              string  `json:"token"`                //  收款钱包地址
 	BlockTransactionId string  `json:"block_transaction_id"` // 区块id
 	Signature          string  `json:"signature"`            // 签名
@@ -36,7 +36,7 @@ func (e *EpNotify) ToMap() map[string]interface{} {
 		"trade_id":             e.TradeId,
 		"order_id":             e.OrderId,
 		"amount":               e.Amount,
-		"actual_amount":        e.ActualAmount,
+		"token_amount":         e.TokenAmount,
 		"token":                e.Token,
 		"block_transaction_id": e.BlockTransactionId,
 		"signature":            e.Signature,
@@ -77,7 +77,6 @@ func epay(ctx context.Context, order model.TradeOrders) {
 		return
 	}
 
-	postReq.Header.Set("Powered-By", "https://github.com/v03413/bepusdt")
 	resp, err := client.Do(postReq)
 	if err != nil {
 		log.Error("Notify Handle Error: ", err)
@@ -119,7 +118,7 @@ func epusdt(ctx context.Context, order model.TradeOrders) {
 		TradeId:            order.TradeId,
 		OrderId:            order.OrderId,
 		Amount:             order.Money,
-		ActualAmount:       help.Atof(order.Amount),
+		TokenAmount:        help.Atof(order.Amount),
 		Token:              order.Address,
 		BlockTransactionId: order.TradeHash,
 		Status:             order.Status,
@@ -210,7 +209,7 @@ func Bepusdt(order model.TradeOrders) {
 			TradeId:            o.TradeId,
 			OrderId:            o.OrderId,
 			Amount:             o.Money,
-			ActualAmount:       help.Atof(o.Amount),
+			TokenAmount:        help.Atof(o.Amount),
 			Token:              o.Address,
 			BlockTransactionId: o.TradeHash,
 			Status:             o.Status,

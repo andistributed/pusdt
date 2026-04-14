@@ -340,8 +340,8 @@ func GetAvailableTradeType() (map[string][]string, error) {
 	}
 	tradeTypes := url.Values{}
 	for _, v := range rows {
-		if currency, err := GetTokenType(v.TradeType); err == nil {
-			tradeTypes.Add(string(currency), v.TradeType)
+		if tokenType, err := GetTokenType(v.TradeType); err == nil {
+			tradeTypes.Add(string(tokenType), v.TradeType)
 		}
 	}
 	return tradeTypes, err

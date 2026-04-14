@@ -11,7 +11,7 @@ func TestSign(t *testing.T) {
 		TradeId:            `abc`,
 		OrderId:            `def`,
 		Amount:             200.12,
-		ActualAmount:       200.12,
+		TokenAmount:        200.12,
 		Token:              `0xabcdefghijkmln`,
 		BlockTransactionId: `uvwxyz`,
 		Signature:          ``,

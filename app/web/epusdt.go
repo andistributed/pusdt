@@ -139,7 +139,7 @@ func createTransaction(ctx *gin.Context) {
 		"order_id":        order.OrderId,
 		"status":          order.Status,
 		"amount":          order.Money,
-		"actual_amount":   help.Atof(order.Amount),
+		"token_amount":    help.Atof(order.Amount),
 		"token":           order.Address,
 		"expiration_time": uint64(time.Until(order.ExpiredAt).Seconds()),
 		"payment_url":     fmt.Sprintf("%s/pay/checkout-counter/%s", conf.GetAppUri(host), order.TradeId),
@@ -280,16 +280,16 @@ func queryTransaction(ctx *gin.Context) {
 
 		return
 	}
-	actualCurrency, _ := model.GetTokenType(order.TradeType)
+	tokenType, _ := model.GetTokenType(order.TradeType)
 	// 返回响应数据
 	ctx.JSON(200, respSuccJson(gin.H{
-		"trade_id":        order.TradeId,
-		"trade_hash":      order.TradeHash,
-		"status":          order.Status,
-		"currency":        "CNY",
-		"amount":          order.Money,
-		"actual_currency": actualCurrency,
-		"actual_amount":   help.Atof(order.Amount),
+		"trade_id":     order.TradeId,
+		"trade_hash":   order.TradeHash,
+		"status":       order.Status,
+		"currency":     "CNY",
+		"amount":       order.Money,
+		"token_type":   tokenType,
+		"token_amount": help.Atof(order.Amount),
 	}))
 }
 
@@ -312,8 +312,8 @@ func queryNetworks(ctx *gin.Context) {
 		return
 	}
 	result := map[string][]RespNetwork{}
-	for currency, networks := range tradeTypes {
-		result[currency] = make([]RespNetwork, len(networks))
+	for tokenType, networks := range tradeTypes {
+		result[tokenType] = make([]RespNetwork, len(networks))
 		for index, tradeType := range networks {
 			v := RespNetwork{
 				Value: tradeType,
@@ -322,7 +322,7 @@ func queryNetworks(ctx *gin.Context) {
 			if len(v.Label) == 0 {
 				v.Label = v.Value
 			}
-			result[currency][index] = v
+			result[tokenType][index] = v
 		}
 	}
 	// 返回响应数据
