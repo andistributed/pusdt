@@ -14,7 +14,7 @@ const (
 	defaultTrxAtomicity     = 0.01 // TRX原子精度
 
 	// RPC节点均采集自公共网络，作者不对任何节点稳定性和可用性做任何保证，须知！
-	defaultTronGrpcNode        = "18.141.79.38:50051"                             // 默认GRPC节点
+	defaultTronGrpcNode        = "grpc.trongrid.io:50051"                         // 默认GRPC节点
 	defaultBscRpcEndpoint      = "https://binance-smart-chain-public.nodies.app/" // 默认BSC RPC节点
 	defaultSolanaRpcEndpoint   = "https://solana-rpc.publicnode.com/"             // 默认Solana RPC节点 官方是 https://api.mainnet-beta.solana.com/ 但存在速率限制
 	defaultXlayerRpcEndpoint   = "https://xlayerrpc.okx.com/"                     // 默认Xlayer RPC节点
@@ -30,7 +30,7 @@ const (
 const (
 	UsdtErc20    = "0xdac17f958d2ee523a2206206994597c13d831ec7"                         // Eth USDT合约地址
 	UsdtBep20    = "0x55d398326f99059ff775485246999027b3197955"                         // BSC USDT合约地址
-	UsdtXlayer   = "0x1e4a5963abfd975d8c9021ce480b42188849d41d"                         // Xlayer USDT合约地址
+	UsdtXlayer   = "0x779ded0c9e1022225f8e0630b35a9b54be713736"                         // Xlayer USDT合约地址
 	UsdtPolygon  = "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"                         // Polygon USDT合约地址
 	UsdtArbitrum = "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"                         // Arbitum One USDT合约地址
 	UsdtSolana   = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"                       // Solana USDT合约地址
